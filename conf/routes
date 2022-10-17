@@ -6,10 +6,32 @@
 # An example controller showing a sample home page
 GET     /                           controllers.ChessController.index()
 
+GET     /plainGame                  controllers.ChessController.plainGame()
 
 
-POST    /move/:src/:dest             controllers.ChessController.move(src: String, dest: String)
+# Executing commands through PUT
+PUT     /commands/put               controllers.ChessController.put(tile: String, piece: String)
 
+PUT     /commands/move              controllers.ChessController.move(src: String, dest: String)
+
+PUT     /commands/clear             controllers.ChessController.clear
+
+PUT     /commands/putWithFen        controllers.ChessController.putWithFen(fen: String)
+
+PUT     /commands/start             controllers.ChessController.start
+
+PUT     /commands/stop              controllers.ChessController.stop
+
+PUT     /commands/undo              controllers.ChessController.undo
+
+PUT     /commands/redo              controllers.ChessController.redo
+
+
+# Error Handling
+
+GET     /errors/notfound            controllers.ChessController.notFound
+
+GET     /errors/badrequest          controllers.ChessController.badRequest(message: String)
 
 
 # Map static resources from the /public folder to the /assets URL path
