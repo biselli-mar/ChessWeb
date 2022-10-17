@@ -4,7 +4,13 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index()
+GET     /                           controllers.ChessController.index()
+
+
+
+POST    /move/:src/:dest             controllers.ChessController.move(src: String, dest: String)
+
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
