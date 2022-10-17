@@ -37,7 +37,7 @@ jobs:
           ls
           rm -rf lib
           mkdir -p lib 
-          cp Chess/target/scala-*/*.jar lib/  
+          cp Chess/target/scala-*/Chess-assembly*.jar lib/  
           rm -rf Chess
       - name: Commit changes
         if: github.event.action == 'ping'
