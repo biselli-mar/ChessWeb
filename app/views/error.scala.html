@@ -1,0 +1,9 @@
+@(status: Int, message: Option[String])
+
+@main("Something went wrong!") {
+    <h1>Oops!</h1>
+    <h4>@{message.getOrElse("Looks like something went wrong.")}</h4>
+    <br>
+    <a href="/">Go back to Start</a>
+    <iframe style="margin-top: 20px;" src="https://http.cat/@status" width="625px" height="500px"></iframe>
+}

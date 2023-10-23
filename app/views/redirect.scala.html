@@ -1,0 +1,10 @@
+@(status: Int, url: String)
+
+@main("Content Moved") {
+    <h3>You are being redirected to this new location:</h3>
+    <a href="@url">@url</a>
+    <br/>
+    <h3>If the URL is malformed you can also navigate back to the home page.</h3>
+    <a href="/">Go back to Start</a>
+    <iframe src="https://http.cat/@status" width="100%" height="500px"></iframe>
+}
