@@ -1,15 +1,30 @@
+import dependencies._
+
 name := """chessweb"""
-organization := "com.example"
 
-version := "1.0-SNAPSHOT"
+lazy val utils = project
+    .in(file("./utils"))
+    .settings(
+        name := "utils",
+        scalaVersion := scala3Version,
+        libraryDependencies += scalaTest3,
+    )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = project
+    .in(file("."))
+    .settings(
+        scalaVersion := scala2Version,
+        scalacOptions += "-Ytasty-reader",
+        name := "chessWeb",
+        libraryDependencies ++= Seq(
+            guice,
+            ws
+        ),
+        libraryDependencies ++= commonDependency,
+    )
+    .dependsOn(utils)
+    .enablePlugins(PlayScala)
 
-scalaVersion := "2.13.10"
-scalacOptions += "-Ytasty-reader"
-
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
 //libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.11.4"
 
 // Adds additional packages into Twirl
