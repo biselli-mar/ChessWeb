@@ -36,6 +36,26 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
 
   def boardText(response: WSResponse) = toBoard(FenParser.matrixFromFen(response.body))
 
+  def asyncAction(
+    resourcePath: String,
+    method: HttpMethod,
+    success: WSResponse => Result,
+    query: (String, String)*): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+      ws.url(controllerURL + resourcePath)
+        .withMethod(method.toString())
+        .addHttpHeaders("Accept" -> "text/plain")
+        .addQueryStringParameters(query: _*)
+        .execute()
+        .map( response =>
+            response.status match {
+              case 200 => success(response)
+              case _ => BadRequest(response.body)
+            }
+        )
+    }
+
+  def backToPlay(response: WSResponse) = SeeOther("/play")
+
   /**
    * Create an Action to render an HTML page.
    *
@@ -47,69 +67,15 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
     Ok(views.html.index())
   }
 
-  def plainGame() = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/fen")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .get()
-        .map { response =>
-          response.status match {
-            case 200 => Ok(views.html.plainGame(boardText(response)))
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def plainGame() = asyncAction("/game", GET, (r) => Ok(views.html.plainGame(boardText(r))))
 
-  def put(tile: String, piece: String) = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/cells")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters("tile" -> tile, "piece" -> piece)
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def put(tile: String, piece: String) = asyncAction("/cells", PUT, backToPlay, "tile" -> tile, "piece" -> piece)
 
-  def move(from: String, to: String) = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/moves")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters("from" -> from, "to" -> to)
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def move(from: String, to: String) = asyncAction("/moves", PUT, backToPlay, "from" -> from, "to" -> to)
 
-  def clear = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/cells")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters("clear" -> "true")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def clear = asyncAction("/cells", PUT, backToPlay, "clear" -> "true")
 
-  def putWithFen(fen: String) = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/fen")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters("fen" -> fen)
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def putWithFen(fen: String) = asyncAction("/fen", PUT, backToPlay, "fen" -> fen)
 
   def select(tile: Option[String]) = Action.async { implicit request: Request[AnyContent] =>
     val request = ws.url(controllerURL + "/states")
@@ -128,53 +94,11 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
         }
   }
 
-  def start = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/states")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters("query" -> "playing", "state" -> "true")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def start = asyncAction("/states", PUT, backToPlay, "query" -> "playing", "state" -> "true")
 
-  def stop = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/states")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters("query" -> "playing", "state" -> "true")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def stop  = asyncAction("/states", PUT, backToPlay, "query" -> "playing", "state" -> "false")
 
-  def undo = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/undo")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def undo  = asyncAction("/undo", PUT, backToPlay)
 
-  def redo = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/redo")
-        .addHttpHeaders("Accept" -> "text/plain")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
-        }
-  }
+  def redo  = asyncAction("/redo", PUT, backToPlay)
 }
