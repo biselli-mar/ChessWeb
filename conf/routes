@@ -6,32 +6,40 @@
 # An example controller showing a sample home page
 GET     /                           controllers.ChessController.index()
 
-GET     /plainGame                  controllers.ChessController.plainGame()
+GET     /play                       controllers.ChessController.plainGame()
 
 
-# Executing commands through PUT
-PUT     /commands/put               controllers.ChessController.put(tile: String, piece: String)
+# Executing commands
+GET     /play/put                   controllers.ChessController.put(tile: String, piece: String)
 
-PUT     /commands/move              controllers.ChessController.move(src: String, dest: String)
+GET     /play/move                  controllers.ChessController.move(from: String, to: String)
 
-PUT     /commands/clear             controllers.ChessController.clear
+GET     /play/clear                 controllers.ChessController.clear
 
-PUT     /commands/putWithFen        controllers.ChessController.putWithFen(fen: String)
+GET     /play/putWithFen            controllers.ChessController.putWithFen(fen: String)
 
-PUT     /commands/start             controllers.ChessController.start
+GET     /play/start                 controllers.ChessController.start
 
-PUT     /commands/stop              controllers.ChessController.stop
+GET     /play/stop                  controllers.ChessController.stop
 
-PUT     /commands/undo              controllers.ChessController.undo
+GET     /play/undo                  controllers.ChessController.undo
 
-PUT     /commands/redo              controllers.ChessController.redo
+GET     /play/redo                  controllers.ChessController.redo
 
 
 # Error Handling
 
-GET     /errors/notfound            controllers.ChessController.notFound
+GET     /errors/notfound            controllers.ErrorController.notFound(message: Option[String])
 
-GET     /errors/badrequest          controllers.ChessController.badRequest(message: String)
+GET     /errors/badrequest          controllers.ErrorController.badRequest(message: Option[String])
+
+GET     /errors/forbidden           controllers.ErrorController.forbidden(message: Option[String])
+
+GET     /errors/internalError       controllers.ErrorController.internalError(message: Option[String])
+
+GET     /errors/redirected          controllers.ErrorController.redirected(status: Int, url: String)
+
+GET     /errors/error               controllers.ErrorController.genericError(status: Option[Int], message: Option[String])
 
 
 # Map static resources from the /public folder to the /assets URL path
