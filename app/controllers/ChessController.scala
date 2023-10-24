@@ -60,7 +60,7 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
     Ok(views.html.index())
   }
 
-  def plainGame() = asyncAction("/game", GET, (r) => Ok(views.html.plainGame(boardText(r))))
+  def plainGame() = asyncAction("/fen", GET, (r) => Ok(views.html.plainGame(boardText(r))))
 
   def put(tile: String, piece: String) = asyncAction("/cells", PUT, backToPlay, "tile" -> tile, "piece" -> piece)
 
