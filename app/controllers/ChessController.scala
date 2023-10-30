@@ -98,4 +98,9 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
   def undo  = asyncAction("/undo", PUT, backToPlay)
 
   def redo  = asyncAction("/redo", PUT, backToPlay)
+
+  def about() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.about())
+  }
+
 }
