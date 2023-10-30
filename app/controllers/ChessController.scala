@@ -216,4 +216,9 @@ with play.api.i18n.I18nSupport {
   def undo  = asyncAction("/undo", PUT, backToPlay)
 
   def redo  = asyncAction("/redo", PUT, backToPlay)
+
+  def about() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.about())
+  }
+
 }
