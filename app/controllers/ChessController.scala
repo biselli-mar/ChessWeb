@@ -62,6 +62,8 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
 
   def plainGame() = asyncAction("/fen", GET, (r) => Ok(views.html.plainGame(boardText(r))))
 
+  def game() = asyncAction("/fen", GET, (r) => Ok(views.html.game(FenParser.matrixFromFen(r.body), FenParser.stateFromFen(r.body), PieceColor.White)))
+
   def put(tile: String, piece: String) = asyncAction("/cells", PUT, backToPlay, "tile" -> tile, "piece" -> piece)
 
   def move(from: String, to: String) = asyncAction("/moves", PUT, backToPlay, "from" -> from, "to" -> to)
@@ -69,6 +71,8 @@ class ChessController @Inject()(ws: WSClient, config: Configuration, val control
   def clear = asyncAction("/cells", PUT, backToPlay, "clear" -> "true")
 
   def putWithFen(fen: String) = asyncAction("/fen", PUT, backToPlay, "fen" -> fen)
+
+  def reset = putWithFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
   def select(tile: Option[String]) = Action.async { implicit request: Request[AnyContent] =>
     val request = ws.url(controllerURL + "/states")

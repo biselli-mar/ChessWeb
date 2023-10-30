@@ -5,25 +5,27 @@
 
 GET     /                           controllers.ChessController.index()
 
-GET     /play                       controllers.ChessController.plainGame()
+GET     /play                       controllers.ChessController.game()
 
 
 # Executing commands
-GET     /play/put                   controllers.ChessController.put(tile: String, piece: String)
+POST     /play/put                   controllers.ChessController.put(tile: String, piece: String)
 
-GET     /play/move                  controllers.ChessController.move(from: String, to: String)
+POST     /play/move                  controllers.ChessController.move(from: String, to: String)
 
-GET     /play/clear                 controllers.ChessController.clear
+POST     /play/clear                 controllers.ChessController.clear
 
-GET     /play/putWithFen            controllers.ChessController.putWithFen(fen: String)
+POST     /play/putWithFen            controllers.ChessController.putWithFen(fen: String)
 
-GET     /play/start                 controllers.ChessController.start
+POST     /play/reset                 controllers.ChessController.reset
 
-GET     /play/stop                  controllers.ChessController.stop
+POST     /play/start                 controllers.ChessController.start
 
-GET     /play/undo                  controllers.ChessController.undo
+POST     /play/stop                  controllers.ChessController.stop
 
-GET     /play/redo                  controllers.ChessController.redo
+POST     /play/undo                  controllers.ChessController.undo
+
+POST     /play/redo                  controllers.ChessController.redo
 
 
 # Error Handling

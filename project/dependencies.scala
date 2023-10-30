@@ -9,6 +9,8 @@ object dependencies {
   val scalaTest = "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
   val scalaTest3 = "org.scalatest" %% "scalatest" % "3.2.10" % "test"
 
+  val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "2.2.0"
+
   val commonDependency = Seq(
     scalaTest,
   )

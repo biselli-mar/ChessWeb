@@ -1,0 +1,93 @@
+@import de.htwg.se.chess.util.data._
+@import models._
+
+@(chessboard: Matrix[Option[Piece]], state: ChessState, playerColor: PieceColor)
+
+@backgroundStr(row: Int, col: Int) = @{
+  if((row % 2 == 1 && col % 2 == 0) || (row % 2 == 0 && col % 2 == 1)) {
+    "D"
+  } else {
+    "L"
+  }
+}
+
+@getPiece(row: Int, col: Int) = @{
+  if(playerColor == PieceColor.White) { 
+    chessboard.cell(row, col)
+  } else {
+    chessboard.cell(7 - row, 7 - col)
+  }
+}
+
+@pieceSvg(piece: Piece, pieceBackground: String) = {
+<img src="@routes.Assets.versioned("images/pieces/" + piece.toString + "_" + pieceBackground + ".svg")"/>
+}
+
+@pieceSvgEmpty(pieceBackground: String) = {
+<img src="@routes.Assets.versioned("images/pieces/EMPTY_" + pieceBackground + ".svg")"/>
+}
+
+@*
+@(moveForm: Form[MoveForm])(implicit messages: play.api.i18n.Messages)
+*@
+<!-- HTML code for rendering the chessboard -->
+@main("HTWG Chess") {
+<table>
+<tbody>
+  <tr>
+    <td>
+    <div class="chessboard">
+      <table cellpadding="0" cellspacing="0" border="0">
+        @for(row <- 0 until 8) {
+          <tr>
+            @for(col <- 0 until 8) {
+              <td>
+                @if(getPiece(row, col).isDefined) {
+                  @pieceSvg(getPiece(row, col).get, backgroundStr(row, col))
+                } else {
+                  @pieceSvgEmpty(backgroundStr(row, col))
+                }
+              </td>
+            }
+          </tr>
+        }
+      </table>
+    </div>
+    </td>
+    <td>
+      
+      <form>
+        <label for="inFrom">From</label>
+        <input type="text" name="from" id="inFrom" value="" tabindex="1">
+        <label for="inTo">To</label>
+        <input type="text" name="to" id="inTo" value="" tabindex="2">
+      </form>
+    </td>
+  </tr>
+    <tr>
+    <td>
+      <div>
+        Current Player: @state.color<br>
+        Check Legality: @state.playing<br>
+        Half-Moves: @state.halfMoves<br>
+        Full-Moves: @state.fullMoves
+      </div>
+    </td>
+  </tr>
+</tbody>
+<tfoot>
+  <tr><td>
+  <div class="chess-control-buttons">
+    <form method="post">
+      <input type="submit" value="Undo" formaction="@routes.ChessController.undo">
+      <input type="submit" value="Redo" formaction="@routes.ChessController.redo">
+      <input type="submit" value="Reset" formaction="@routes.ChessController.reset">
+      <input type="submit" value="Clear" formaction="@routes.ChessController.clear">
+      <input type="submit" value="Start" formaction="@routes.ChessController.start">
+      <input type="submit" value="Stop" formaction="@routes.ChessController.stop">
+    </form>
+  </div>
+  </tr></td>
+</tfoot>
+</table>
+}

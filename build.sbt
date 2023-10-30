@@ -7,7 +7,10 @@ lazy val utils = project
     .settings(
         name := "utils",
         scalaVersion := scala3Version,
-        libraryDependencies += scalaTest3,
+        libraryDependencies ++= Seq(
+            scalaTest3,
+            scalaXml
+        ),
     )
 
 lazy val root = project
@@ -18,7 +21,7 @@ lazy val root = project
         name := "chessWeb",
         libraryDependencies ++= Seq(
             guice,
-            ws
+            ws,
         ),
         libraryDependencies ++= commonDependency,
     )

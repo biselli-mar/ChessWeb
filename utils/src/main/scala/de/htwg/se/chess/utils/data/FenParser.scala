@@ -24,6 +24,10 @@ object FenParser:
         Vector.tabulate(fieldSize) { rank => fenList.drop(rank * fieldSize).take(fieldSize) }
       )
 
+    def stateFromFen(fen: String): ChessState = 
+        val fieldSize = fen.count(c => c == '/') + 1
+        ChessState(fen, fieldSize)
+
     def checkFen(check: String): Boolean =
         val size = check.count(c => c == '/') + 1
 
