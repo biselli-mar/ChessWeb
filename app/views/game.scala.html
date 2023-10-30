@@ -1,13 +1,29 @@
 @import de.htwg.se.chess.util.data._
-@import models._
+@(chessboard: 
+  Matrix[Option[Piece]], 
+  state: ChessState, 
+  playerColor: PieceColor, 
+  legalMoves: List[Tuple2[Int, Int]], 
+  moveForm: Form[MoveForm], 
+  selectForm: Form[SelectForm],
+  fenForm: Form[FenForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
-@(chessboard: Matrix[Option[Piece]], state: ChessState, playerColor: PieceColor)
+@import helper._
+@import models._
 
 @backgroundStr(row: Int, col: Int) = @{
   if((row % 2 == 1 && col % 2 == 0) || (row % 2 == 0 && col % 2 == 1)) {
     "D"
   } else {
     "L"
+  }
+}
+
+@highlightStr(row: Int, col: Int) = @{
+  if(legalMoves.contains(Tuple2(row, col))) {
+    "_H"
+  } else {
+    ""
   }
 }
 
@@ -19,12 +35,12 @@
   }
 }
 
-@pieceSvg(piece: Piece, pieceBackground: String) = {
-<img src="@routes.Assets.versioned("images/pieces/" + piece.toString + "_" + pieceBackground + ".svg")"/>
+@pieceSvg(piece: Piece, pieceBackground: String, highlight: String) = {
+<img src="@routes.Assets.versioned("images/pieces/" + piece.toString + "_" + pieceBackground + highlight + ".svg")"/>
 }
 
-@pieceSvgEmpty(pieceBackground: String) = {
-<img src="@routes.Assets.versioned("images/pieces/EMPTY_" + pieceBackground + ".svg")"/>
+@pieceSvgEmpty(pieceBackground: String, highlight: String) = {
+<img src="@routes.Assets.versioned("images/pieces/EMPTY_" + pieceBackground + highlight + ".svg")"/>
 }
 
 @*
@@ -36,6 +52,21 @@
 <tbody>
   <tr>
     <td>
+      <div>
+        <h3>Game Info</h3>
+        Current Player: @state.color<br>
+        Half-Moves: @state.halfMoves<br>
+        Full-Moves: @state.fullMoves
+        <h3>Load FEN position</h3>
+        @* Test fen: 1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1 *@
+        @helper.form(action = routes.ChessController.putWithFen) {
+          @CSRF.formField
+          @helper.inputText(fenForm("fen"))
+          <input type="submit" value="Load">
+        }
+      </div>
+    </td>
+    <td>
     <div class="chessboard">
       <table cellpadding="0" cellspacing="0" border="0">
         @for(row <- 0 until 8) {
@@ -43,9 +74,9 @@
             @for(col <- 0 until 8) {
               <td>
                 @if(getPiece(row, col).isDefined) {
-                  @pieceSvg(getPiece(row, col).get, backgroundStr(row, col))
+                  @pieceSvg(getPiece(row, col).get, backgroundStr(row, col), highlightStr(row, col))
                 } else {
-                  @pieceSvgEmpty(backgroundStr(row, col))
+                  @pieceSvgEmpty(backgroundStr(row, col), highlightStr(row, col))
                 }
               </td>
             }
@@ -55,36 +86,35 @@
     </div>
     </td>
     <td>
-      
-      <form>
-        <label for="inFrom">From</label>
-        <input type="text" name="from" id="inFrom" value="" tabindex="1">
-        <label for="inTo">To</label>
-        <input type="text" name="to" id="inTo" value="" tabindex="2">
-      </form>
-    </td>
-  </tr>
-    <tr>
-    <td>
-      <div>
-        Current Player: @state.color<br>
-        Check Legality: @state.playing<br>
-        Half-Moves: @state.halfMoves<br>
-        Full-Moves: @state.fullMoves
-      </div>
+      <h3>Move Pieces</h3>
+      @helper.form(action = routes.ChessController.move) {
+        @CSRF.formField
+        @helper.inputText(moveForm("from"))
+        @helper.inputText(moveForm("to"))
+        <input type="submit" value="Move">
+      }
+      <h3>Select Tile</h3>
+      @helper.form(action = routes.ChessController.select) {
+        @CSRF.formField
+        @helper.inputText(selectForm("tile"))
+        <input type="submit" value="Select">
+      }
     </td>
   </tr>
 </tbody>
 <tfoot>
-  <tr><td>
+  <tr>
+  <td>
+    <div></div>
+  </td>
+  <td>
   <div class="chess-control-buttons">
     <form method="post">
+      @CSRF.formField
       <input type="submit" value="Undo" formaction="@routes.ChessController.undo">
       <input type="submit" value="Redo" formaction="@routes.ChessController.redo">
       <input type="submit" value="Reset" formaction="@routes.ChessController.reset">
       <input type="submit" value="Clear" formaction="@routes.ChessController.clear">
-      <input type="submit" value="Start" formaction="@routes.ChessController.start">
-      <input type="submit" value="Stop" formaction="@routes.ChessController.stop">
     </form>
   </div>
   </tr></td>

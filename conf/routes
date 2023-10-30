@@ -5,17 +5,18 @@
 
 GET     /                           controllers.ChessController.index()
 
-GET     /play                       controllers.ChessController.game()
+GET     /play                       controllers.ChessController.game
 
 
 # Executing commands
-POST     /play/put                   controllers.ChessController.put(tile: String, piece: String)
 
-POST     /play/move                  controllers.ChessController.move(from: String, to: String)
+POST     /play/move                  controllers.ChessController.move
+
+POST     /play/select                controllers.ChessController.select
 
 POST     /play/clear                 controllers.ChessController.clear
 
-POST     /play/putWithFen            controllers.ChessController.putWithFen(fen: String)
+POST     /play/putWithFen            controllers.ChessController.putWithFen
 
 POST     /play/reset                 controllers.ChessController.reset
 
