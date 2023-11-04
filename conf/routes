@@ -5,25 +5,30 @@
 
 GET     /                           controllers.ChessController.index()
 
-GET     /play                       controllers.ChessController.plainGame()
+GET     /play                       controllers.ChessController.game
+
+GET     /about                      controllers.ChessController.about()
 
 
 # Executing commands
-GET     /play/put                   controllers.ChessController.put(tile: String, piece: String)
 
-GET     /play/move                  controllers.ChessController.move(from: String, to: String)
+POST     /play/move                  controllers.ChessController.move
 
-GET     /play/clear                 controllers.ChessController.clear
+POST     /play/select                controllers.ChessController.select
 
-GET     /play/putWithFen            controllers.ChessController.putWithFen(fen: String)
+POST     /play/clear                 controllers.ChessController.clear
 
-GET     /play/start                 controllers.ChessController.start
+POST     /play/putWithFen            controllers.ChessController.putWithFen
 
-GET     /play/stop                  controllers.ChessController.stop
+POST     /play/reset                 controllers.ChessController.reset
 
-GET     /play/undo                  controllers.ChessController.undo
+POST     /play/start                 controllers.ChessController.start
 
-GET     /play/redo                  controllers.ChessController.redo
+POST     /play/stop                  controllers.ChessController.stop
+
+POST     /play/undo                  controllers.ChessController.undo
+
+POST     /play/redo                  controllers.ChessController.redo
 
 
 # Error Handling
@@ -43,3 +48,4 @@ GET     /errors/error               controllers.ErrorController.genericError(sta
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
