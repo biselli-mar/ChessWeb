@@ -8,8 +8,7 @@ lazy val utils = project
         name := "utils",
         scalaVersion := scala3Version,
         libraryDependencies ++= Seq(
-            scalaTest3,
-            scalaXml
+            scalaTest3
         ),
     )
 
