@@ -56,7 +56,7 @@
       @for(row <- 0 until 8) {
         <div class="chess-row">
           @for(col <- 0 until 8) {
-            <div class="square @{tile.col}@{tile.row}">
+            <div class="chess-cell">
               @if(getPiece(row, col).isDefined) {
                 @pieceSvg(getPiece(row, col).get, backgroundStr(row, col), highlightStr(row, col))
               } else {
