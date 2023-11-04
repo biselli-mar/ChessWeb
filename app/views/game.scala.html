@@ -43,72 +43,61 @@
 <img src="@routes.Assets.versioned("images/pieces/EMPTY_" + pieceBackground + highlight + ".svg")"/>
 }
 
+<!-- Include the CSS file generated from your Less -->
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("game.css")">
+
 @*
 @(moveForm: Form[MoveForm])(implicit messages: play.api.i18n.Messages)
 *@
 <!-- HTML code for rendering the chessboard -->
 @main("HTWG Chess") {
-<table>
-<tbody>
-  <tr>
-    <td>
-      <div>
-        <h3>Game Info</h3>
-        Current Player: @state.color<br>
-        Half-Moves: @state.halfMoves<br>
-        Full-Moves: @state.fullMoves
-        <h3>Load FEN position</h3>
-        @* Test fen: 1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1 *@
-        @helper.form(action = routes.ChessController.putWithFen) {
-          @CSRF.formField
-          @helper.inputText(fenForm("fen"))
-          <input type="submit" value="Load">
-        }
-      </div>
-    </td>
-    <td>
-    <div class="chessboard">
-      <table cellpadding="0" cellspacing="0" border="0">
-        @for(row <- 0 until 8) {
-          <tr>
-            @for(col <- 0 until 8) {
-              <td>
-                @if(getPiece(row, col).isDefined) {
-                  @pieceSvg(getPiece(row, col).get, backgroundStr(row, col), highlightStr(row, col))
-                } else {
-                  @pieceSvgEmpty(backgroundStr(row, col), highlightStr(row, col))
-                }
-              </td>
-            }
-          </tr>
-        }
-      </table>
+  <div class="chessboard">
+    <div class="chess-rows">
+      @for(row <- 0 until 8) {
+        <div class="chess-row">
+          @for(col <- 0 until 8) {
+            <div class="square @{tile.col}@{tile.row}">
+              @if(getPiece(row, col).isDefined) {
+                @pieceSvg(getPiece(row, col).get, backgroundStr(row, col), highlightStr(row, col))
+              } else {
+                @pieceSvgEmpty(backgroundStr(row, col), highlightStr(row, col))
+              }
+            </div>
+          }
+        </div>
+      }
     </div>
-    </td>
-    <td>
-      <h3>Move Pieces</h3>
-      @helper.form(action = routes.ChessController.move) {
-        @CSRF.formField
-        @helper.inputText(moveForm("from"))
-        @helper.inputText(moveForm("to"))
-        <input type="submit" value="Move">
-      }
-      <h3>Select Tile</h3>
-      @helper.form(action = routes.ChessController.select) {
-        @CSRF.formField
-        @helper.inputText(selectForm("tile"))
-        <input type="submit" value="Select">
-      }
-    </td>
-  </tr>
-</tbody>
-<tfoot>
-  <tr>
-  <td>
-    <div></div>
-  </td>
-  <td>
-  <div class="chess-control-buttons">
+  </div>
+  <div class="chess-info"> 
+    <h3>Game Info</h3>
+    Current Player: @state.color<br>
+    Half-Moves: @state.halfMoves<br>
+    Full-Moves: @state.fullMoves
+  </div>
+  <div class="fen-load">
+    <h3>Load FEN position</h3>
+    @helper.form(action = routes.ChessController.putWithFen) {
+      @CSRF.formField
+      @helper.inputText(fenForm("fen"))
+      <input type="submit" value="Load">
+    }
+  </div>
+  <div class="move-select">
+    <h3>Move Pieces</h3>
+    @helper.form(action = routes.ChessController.move) {
+      @CSRF.formField
+      @helper.inputText(moveForm("from"))
+      @helper.inputText(moveForm("to"))
+      <input type="submit" value="Move">
+    }
+    <h3>Select Tile</h3>
+    @helper.form(action = routes.ChessController.select) {
+      @CSRF.formField
+      @helper.inputText(selectForm("tile"))
+      <input type="submit" value="Select">
+    }
+  </div>
+  <div class="control-buttons">
     <form method="post">
       @CSRF.formField
       <input type="submit" value="Undo" formaction="@routes.ChessController.undo">
@@ -117,7 +106,5 @@
       <input type="submit" value="Clear" formaction="@routes.ChessController.clear">
     </form>
   </div>
-  </tr></td>
-</tfoot>
-</table>
 }
+
