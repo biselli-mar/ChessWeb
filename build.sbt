@@ -25,12 +25,4 @@ lazy val root = project
         libraryDependencies ++= commonDependency,
     )
     .dependsOn(utils)
-    .enablePlugins(PlayScala)
-
-//libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.11.4"
-
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.example.controllers._"
-
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "com.example.binders._"
+    .enablePlugins(PlayScala, SbtWeb)
