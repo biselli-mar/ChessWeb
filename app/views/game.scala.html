@@ -27,12 +27,12 @@
   }
 }
 
-@getPiece(row: Int, col: Int) = @{
-  if(playerColor == PieceColor.White) { 
-    chessboard.cell(row, col)
-  } else {
-    chessboard.cell(7 - row, 7 - col)
-  }
+@maybePiece(row: Int, col: Int) = @{
+  chessboard.cell(row, col)
+}
+
+@piece(row: Int, col: Int) = @{
+  maybePiece(row, col).get
 }
 
 @pieceSvg(piece: Piece, pieceBackground: String, highlight: String) = {
@@ -43,30 +43,29 @@
 <img src="@routes.Assets.versioned("images/pieces/EMPTY_" + pieceBackground + highlight + ".svg")"/>
 }
 
-<!-- Include the CSS file generated from your Less -->
-<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("game.css")">
+@pieceDiv(row: Int, col: Int, piece: Piece) = {
+  <div class="@{"piece " + piece.getColor.toFenChar + piece.toFenChar.toLowerCase() + " square-" + (col + 1) + (8 - row)}"></div>
+}
 
 @*
 @(moveForm: Form[MoveForm])(implicit messages: play.api.i18n.Messages)
 *@
 <!-- HTML code for rendering the chessboard -->
-@main("HTWG Chess") {
-  <div class="chessboard">
-    <div class="chess-rows">
+@main("HTWG Chess", List("game")) {
+  <div class="board-container">
+    @if(playerColor == PieceColor.White) {
+      <chessboard id="chessboard" class="board">
+    } else {
+      <chessboard id="chessboard" class="board flipped">
+    }
+    @for(col <- 0 until 8) {
       @for(row <- 0 until 8) {
-        <div class="chess-row">
-          @for(col <- 0 until 8) {
-            <div class="chess-cell">
-              @if(getPiece(row, col).isDefined) {
-                @pieceSvg(getPiece(row, col).get, backgroundStr(row, col), highlightStr(row, col))
-              } else {
-                @pieceSvgEmpty(backgroundStr(row, col), highlightStr(row, col))
-              }
-            </div>
+          @if(maybePiece(row, col).isDefined) {
+            @pieceDiv(row, col, piece(row, col))
           }
-        </div>
+        }
       }
-    </div>
+    </chessboard>
   </div>
   <div class="chess-info"> 
     <h3>Game Info</h3>
