@@ -14,3 +14,31 @@ target
 /.settings
 /RUNNING_PID
 *.worksheet.sc
+
+# Node.js and npm
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+lib/
+vendor/
+jspm_packages/
+
+# Distribution directories
+dist/
+out/
+
+# Sensitive or environment-specific files
+.env
+.env.*
