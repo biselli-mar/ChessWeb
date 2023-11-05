@@ -1,27 +1,27 @@
-.chessboard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px;
-  
-    .chess-row {
-      display: flex;
-    }
-  
-    .chess-cell {
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-  
-      &.D {
-        background-color: #dcdcdc;
-      }
-  
-      &.L {
-        background-color: #8b4513;
-      }
-    }
-  }
-  
+@import 'board/_pieces.less';
+@import 'board/_squares.less';
+
+@board-size: 560px;
+
+chessboard {
+  display: block;
+  touch-action: none;
+  background-image: url('/assets/images/board_green.png');
+}
+
+.board {
+  background-repeat: no-repeat;
+  background-size: 100%;
+  border-radius: 0.5em;
+  height: 100%;
+  position: relative;
+  user-select: none;
+  width: 100%;
+}
+
+.board-container {
+  display: grid;
+  height: 85vh;
+  width: 85vh;
+  margin-top: 1em;
+}
