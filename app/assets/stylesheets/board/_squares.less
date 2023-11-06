@@ -1,4 +1,26 @@
 
+.hint {
+    background-clip: content-box;
+    box-sizing: border-box;
+    border-radius: 50%;
+    height: 12.5%;
+    width: 12.5%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    z-index: 1;
+
+    &-move {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 4.2%;
+    }
+
+    &-capture {
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-width: width / 20;
+    }
+}
+
 .square-11 {
     transform: translateX(0%) translateY(700%);
 
