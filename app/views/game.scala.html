@@ -11,21 +11,9 @@
 @import helper._
 @import models._
 
-@backgroundStr(row: Int, col: Int) = @{
-  if((row % 2 == 1 && col % 2 == 0) || (row % 2 == 0 && col % 2 == 1)) {
-    "D"
-  } else {
-    "L"
-  }
-}
-
-@highlightStr(row: Int, col: Int) = @{
-  if(legalMoves.contains(Tuple2(row, col))) {
-    "_H"
-  } else {
-    ""
-  }
-}
+@**********************************************
+ * Helper functions for rendering the pieces. *
+ *********************************************@
 
 @maybePiece(row: Int, col: Int) = @{
   chessboard.cell(row, col)
@@ -36,8 +24,24 @@
 }
 
 @pieceDiv(row: Int, col: Int, piece: Piece) = {
-  <div class="@{"piece " + piece.getColor.toFenChar + piece.toFenChar.toLowerCase() + " square-" + (col + 1) + (8 - row)}"></div>
+  <div
+    id="@{piece.toFenChar + "-" + (col + 1) + (row + 1)}"
+    class="@{"piece " + piece.getColor.toFenChar + piece.toFenChar.toLowerCase() + " square-" + (col + 1) + (8 - row)}"
+    draggable="true"
+  ></div>
 }
+
+@hintDiv(cell: Tuple2[Int, Int]) = {
+  @if(maybePiece(cell._1, cell._2).isDefined) {
+    <div class="hint hint-capture square-@{cell._2 + 1}@{8 - cell._1}"></div>" 
+  } else {
+    <div class="hint hint-move square-@{cell._2 + 1}@{8 - cell._1}"></div>
+  }
+}
+
+@*********************************************************
+ * Helper functions for rendering the board coordinates. *
+ ********************************************************@
 
 @intToFileChar(i: Int) = @{
   if(playerColor == PieceColor.White) {
@@ -46,7 +50,7 @@
     ('h'.toInt - i).toChar
   }
 }
-
+  
 @intToRank(i: Int) = @{
   if(playerColor == PieceColor.White) {
     8 - i
@@ -71,17 +75,9 @@
   <text x="@{x}" y="@{y}" class="coordinates-@{color} rank">@{rank}</text>
 }
 
-@hintDiv(cell: Tuple2[Int, Int]) = {
-  @if(maybePiece(cell._1, cell._2).isDefined) {
-    <div class="hint hint-capture square-@{cell._2 + 1}@{8 - cell._1}"></div>" 
-  } else {
-    <div class="hint hint-move square-@{cell._2 + 1}@{8 - cell._1}"></div>
-  }
-}
+@*******************************************@
 
-@*
-@(moveForm: Form[MoveForm])(implicit messages: play.api.i18n.Messages)
-*@
+
 <!-- HTML code for rendering the chessboard -->
 @main("HTWG Chess", List("game")) {
   <div class="board-container">
