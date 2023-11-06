@@ -1,15 +1,50 @@
 @import 'board/_pieces.less';
 @import 'board/_squares.less';
 @import 'board/_coordinates.less';
+@import 'global.less';
 
-@board-size: 560px;
+@min-width: 1137px;
 
 chessboard {
-  display: block;
+  display: flow;
   touch-action: none;
   background-image: url('/assets/images/board_green.png');
 }
 
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+  @media screen and (min-width: @min-width) {
+    flex-direction: row;
+    height: 85vh;
+    .chess-layout {
+      height: 85vh;
+    }
+    .board-container {
+      min-width: 85vh;
+      width: 85vh;
+      height: 85vh;
+    }
+  }
+  @media screen and (max-width: @min-width) {
+    flex-direction: column;
+    .board-container {
+      width: 100vw;
+      height: 100vw;
+    }
+  }
+}
+
+.chess-layout {
+  .light-inset;
+  display: flex;
+  flex-direction: inherit;
+  margin: 0;
+  padding: 0;
+}
 .board {
   background-repeat: no-repeat;
   background-size: 100%;
@@ -21,8 +56,38 @@ chessboard {
 }
 
 .board-container {
+  .dark-offset;
   display: grid;
-  height: 85vh;
-  width: 85vh;
-  margin-top: 1em;
 }
+
+.chess-info {
+  float: left;
+  margin: 1em 1em;
+  font-size: medium;
+}
+
+.chess-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .chess-form {
+    .dark-offset;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .button-cluster {
+    .dark-offset;
+    display: grid;
+    padding: 0 1em;
+    grid-template: 
+        "a b" auto
+        "c d" auto / 50%;
+  }
+}
+
+
