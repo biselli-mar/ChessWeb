@@ -1,8 +1,14 @@
 @()
 
-@main("HTWG-SE ChessWeb") {
-    <h1 class="welcome">Welcome to ChessWeb!</h1>
-    <div class="links">
-        <a href="/play">Play some Chess!</a>
+@main("HTWG-SE ChessWeb", List("index")) {
+    <div class="bishopAnimation">
+        <b></b>
     </div>
+    <div class="centered-container">
+        <h1 class="welcome">Welcome to ChessWeb!</h1>
+        <div class="links">
+            <a href="/play" class="button">Play some Chess!</a>
+        </div>
+    </div>
+    
 }
