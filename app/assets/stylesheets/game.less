@@ -1,9 +1,8 @@
 @import 'board/_pieces.less';
 @import 'board/_squares.less';
 @import 'board/_coordinates.less';
-@import 'global.less';
-
-@min-width: 1137px;
+@import "colors/_colors.less";
+@import "_global";
 
 chessboard {
   display: flow;
@@ -15,18 +14,27 @@ chessboard {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: @footer-padding;
   width: 100%;
 
-  @media screen and (min-width: @min-width) {
+  @media screen and (min-width: @min-width) and (min-height: @min-height-breakpoint) {
     flex-direction: row;
-    height: 85vh;
+    height: @page-size-with-footer;
     .chess-layout {
-      height: 85vh;
+      height: @page-size-with-footer;
     }
     .board-container {
-      min-width: 85vh;
-      width: 85vh;
-      height: 85vh;
+      min-width: @page-size-with-footer;
+      width: @page-size-with-footer;
+      height: @page-size-with-footer;
+    }
+  }
+  @media screen and (max-height: @min-height-breakpoint) {
+    .board-container {
+      min-height: @min-height-breakpoint;
+      min-width: @min-height-breakpoint;
+      width: @min-height-breakpoint;
+      height: @min-height-breakpoint;
     }
   }
   @media screen and (max-width: @min-width) {
@@ -68,8 +76,15 @@ chessboard {
 
 .chess-controls {
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  @media screen and (min-width: @min-width) {
+    flex-direction: column;
+  }
+
+  @media screen and (max-width: @min-width) {
+    flex-direction: row;
+    align-items: center;
+  }
 
   .chess-form {
     .dark-offset;
