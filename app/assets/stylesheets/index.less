@@ -14,12 +14,15 @@
     width: 40vw;
     height: auto;
   }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .bishopAnimation {
     position: fixed;
-    width: 100%;
-    height: 100%;
+    width: 98vw;
+    height: 98vh;
     background-color: transparent;
     z-index: -1;
 
@@ -34,13 +37,13 @@
 }
 
 @keyframes moveX {
-    from { left: 0; }
-    to { left: 100vh - 10vw + 5px; } 
+    from { left: 0%; }
+    to { left: 95%; } 
 }
 
 @keyframes moveY {
-    from { top: 0; }
-    to { top: 100vh - 10vw; }
+    from { top: 0%; }
+    to { top: 95%; }
 }
 
 
