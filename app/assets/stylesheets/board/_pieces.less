@@ -1,0 +1,66 @@
+@piece-path: '/assets/images/pieces';
+
+.piece {
+    background-size: 100%;
+    cursor: grab;
+    height: 12.5%;
+    width: 12.5%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    touch-action: none;
+    user-select: none;
+    will-change: transform;
+
+    .dragging {
+        cursor: grabbing;
+    }
+}
+
+.bb {
+    background-image: url('@{piece-path}/B_BISHOP.svg');
+}
+
+.bk {
+    background-image: url('@{piece-path}/B_KING.svg');
+}
+
+.bn {
+    background-image: url('@{piece-path}/B_KNIGHT.svg');
+}
+
+.bp {
+    background-image: url('@{piece-path}/B_PAWN.svg');
+}
+
+.bq {
+    background-image: url('@{piece-path}/B_QUEEN.svg');
+}
+
+.br {
+    background-image: url('@{piece-path}/B_ROOK.svg');
+}
+
+.wb {
+    background-image: url('@{piece-path}/W_BISHOP.svg');
+}
+
+.wk {
+    background-image: url('@{piece-path}/W_KING.svg');
+}
+
+.wn {
+    background-image: url('@{piece-path}/W_KNIGHT.svg');
+}
+
+.wp {
+    background-image: url('@{piece-path}/W_PAWN.svg');
+}
+
+.wq {
+    background-image: url('@{piece-path}/W_QUEEN.svg');
+}
+
+.wr {
+    background-image: url('@{piece-path}/W_ROOK.svg');
+}

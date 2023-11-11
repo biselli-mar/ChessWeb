@@ -1,0 +1,108 @@
+@import 'board/_pieces.less';
+@import 'board/_squares.less';
+@import 'board/_coordinates.less';
+@import "colors/_colors.less";
+@import "_global";
+
+chessboard {
+  display: flow;
+  touch-action: none;
+  background-image: url('/assets/images/board_green.png');
+}
+
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: @footer-padding;
+  width: 100%;
+
+  @media screen and (min-width: @min-width) and (min-height: @min-height-breakpoint) {
+    flex-direction: row;
+    height: @page-size-with-footer;
+    .chess-layout {
+      height: @page-size-with-footer;
+    }
+    .board-container {
+      min-width: @page-size-with-footer;
+      width: @page-size-with-footer;
+      height: @page-size-with-footer;
+    }
+  }
+  @media screen and (max-height: @min-height-breakpoint) {
+    .board-container {
+      min-height: @min-height-breakpoint;
+      min-width: @min-height-breakpoint;
+      width: @min-height-breakpoint;
+      height: @min-height-breakpoint;
+    }
+  }
+  @media screen and (max-width: @min-width) {
+    flex-direction: column;
+    .board-container {
+      width: 100vw;
+      height: 100vw;
+    }
+  }
+}
+
+.chess-layout {
+  .light-inset;
+  display: flex;
+  flex-direction: inherit;
+  margin: 0;
+  padding: 0;
+}
+.board {
+  background-repeat: no-repeat;
+  background-size: 100%;
+  border-radius: 0.5em;
+  height: 100%;
+  position: relative;
+  user-select: none;
+  width: 100%;
+}
+
+.board-container {
+  .dark-offset;
+  display: grid;
+}
+
+.chess-info {
+  float: left;
+  margin: 1em 1em;
+  font-size: medium;
+}
+
+.chess-controls {
+  display: flex;
+  justify-content: center;
+  @media screen and (min-width: @min-width) {
+    flex-direction: column;
+  }
+
+  @media screen and (max-width: @min-width) {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .chess-form {
+    .dark-offset;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .button-cluster {
+    .dark-offset;
+    display: grid;
+    padding: 0 1em;
+    grid-template: 
+        "a b" auto
+        "c d" auto / 50%;
+  }
+}
+
+

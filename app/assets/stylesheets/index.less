@@ -1,0 +1,49 @@
+@import "global.less";
+
+.centered-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.welcome {
+  .dark-offset-transparent;
+  width: 100%;
+  img {
+    width: 40vw;
+    height: auto;
+  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bishopAnimation {
+    position: fixed;
+    width: 98vw;
+    height: 98vh;
+    background-color: transparent;
+    z-index: -1;
+
+  b {
+    width: 10vw;
+    height: 10vw;
+    background-image: url('/assets/images/pieces/B_BISHOP.svg');
+    background-size: cover;
+    position: absolute;
+    animation: moveX 5s linear 0s infinite alternate, moveY 3.4s linear 0s infinite alternate;
+  }
+}
+
+@keyframes moveX {
+    from { left: 0%; }
+    to { left: 95%; } 
+}
+
+@keyframes moveY {
+    from { top: 0%; }
+    to { top: 95%; }
+}
+
+

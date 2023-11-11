@@ -1,0 +1,28 @@
+{
+  "name": "chessweb",
+  "version": "1.0.0",
+  "description": "WebApp for HTWG Chess",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/biselli-mar/ChessWeb.git"
+  },
+  "keywords": [
+    "Chess",
+    "HTWG",
+    "Web"
+  ],
+  "author": "Marcel Biselli, Emanuel Kupke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/biselli-mar/ChessWeb/issues"
+  },
+  "homepage": "https://github.com/biselli-mar/ChessWeb#readme",
+  "devDependencies": {
+    "eslint": "^8.53.0",
+    "eslint-plugin-vue": "^9.18.1"
+  }
+}

@@ -1,8 +1,14 @@
 @()
 
-@main("HTWG-SE ChessWeb") {
-    <h1 class="welcome">Welcome to ChessWeb!</h1>
-    <div class="links">
-        <a href="/play">Play some Chess!</a>
+@main("HTWG-SE ChessWeb", List("index")) {
+    <div class="bishopAnimation">
+        <b></b>
     </div>
+    <div class="centered-container">
+        <div class="welcome">
+            <img src="@routes.Assets.versioned("images/logo.png")">
+        </div>
+        <a href="/play" class="chess-button chess-button-big">Play some Chess!</a>
+    </div>
+    
 }

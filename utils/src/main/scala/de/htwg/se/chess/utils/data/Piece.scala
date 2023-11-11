@@ -28,6 +28,10 @@ enum PieceType:
 enum PieceColor:
   case Black, White
 
+  def toFenChar: String = this match
+    case White => "w"
+    case Black => "b"
+
 extension (color: PieceColor)
     def invert: PieceColor = if color == PieceColor.White then PieceColor.Black else PieceColor.White
 
@@ -49,6 +53,19 @@ enum Piece(color: PieceColor, ptype: PieceType, name: String):
   def getType: PieceType = ptype
 
   override def toString: String = name
+  def toFenChar: String = this match
+    case W_KING => "K"
+    case W_QUEEN => "Q"
+    case W_ROOK => "R"
+    case W_BISHOP => "B"
+    case W_KNIGHT => "N"
+    case W_PAWN => "P"
+    case B_KING => "k"
+    case B_QUEEN => "q"
+    case B_ROOK => "r"
+    case B_BISHOP => "b"
+    case B_KNIGHT => "n"
+    case B_PAWN => "p"
 
 object Piece:
   def apply(piece: String): Option[Piece] =
