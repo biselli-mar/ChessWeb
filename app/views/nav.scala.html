@@ -1,9 +1,9 @@
 @import models.data._
 
-@(title: String, navItems: Seq[NavItem], stylesheets: List[String] = List(), scripts: List[String] = List())(content: Html)
+@(title: String, stylesheets: List[String] = List(), scripts: List[String] = List())(content: Html)
 
 @navPills() = {
-  @for(item <- navItems) {
+  @for(item <- NavItem.items) {
     <li class="nav-item">
       <a class="nav-link border-bottom rounded-0" href="@item.destUrl">
         <i class="bi pe-none @item.iconClass"></i>

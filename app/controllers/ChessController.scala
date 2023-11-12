@@ -137,7 +137,11 @@ with play.api.i18n.I18nSupport {
             .get()
             .map { response =>
               response.status match {
-                case 200 => Ok(views.html.game(FenParser.matrixFromFen(response.body), FenParser.stateFromFen(response.body), PieceColor.White, List(),
+                case 200 => Ok(views.html.game(
+                  FenParser.matrixFromFen(response.body),
+                  FenParser.stateFromFen(response.body),
+                  PieceColor.White,
+                  List(),
                   moveForm, selectForm, fenForm))
                 case _ => BadRequest(response.body)
               }
@@ -223,7 +227,7 @@ with play.api.i18n.I18nSupport {
   }
 
   def notFinished() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.notFinished(NavItem.items))
+    Ok(views.html.notFinished())
   }
 
 }

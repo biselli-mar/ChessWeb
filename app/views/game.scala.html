@@ -1,12 +1,12 @@
 @import de.htwg.se.chess.util.data._
 @import helper._
 @import models.forms._
+@import models.data._
 
-@(chessboard: 
-  Matrix[Option[Piece]], 
+@(chessboard: Matrix[Option[Piece]], 
   state: ChessState, 
   playerColor: PieceColor, 
-  legalMoves: List[Tuple2[Int, Int]], 
+  legalMoves: List[Tuple2[Int, Int]],
   moveForm: Form[MoveForm], 
   selectForm: Form[SelectForm],
   fenForm: Form[FenForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
@@ -14,6 +14,7 @@
 @**********************************************
  * Helper functions for rendering the pieces. *
  *********************************************@
+
 
 @maybePiece(row: Int, col: Int) = @{
   chessboard.cell(row, col)
@@ -84,85 +85,77 @@
 }
 
 <!-- HTML code for rendering the chessboard -->
-@main("HTWG Chess", stylesheets = List("game")) {
-  <div class="page-with-navbar">
-    <div class="navigation-bar">
-      <header>
-        <a href="/"><img src="@routes.Assets.versioned("images/logo.png")"></a>
-      </header>
-      <span> </span>
-    </div>
-    <div class="game-container" id="game">
-      <div class="chess-layout">
-        <div class="chess-controls">
-          <div class="chess-info">
-            <h3>Game Info</h3>
-            Current Player: @state.color<br>
-            Half-Moves: @state.halfMoves<br>
-            Full-Moves: @state.fullMoves
-          </div>
-          <div class="button-cluster">
-            @postForm {
-              <input class="chess-button" type="submit" value="Undo" formaction="@routes.ChessController.undo">
-            }
-            @postForm {
-              <input class="chess-button" type="submit" value="Redo" formaction="@routes.ChessController.redo">
-            }
-            @postForm {
-              <input class="chess-button" type="submit" value="Reset" formaction="@routes.ChessController.reset">
-            }
-            @postForm {
-              <input class="chess-button" type="submit" value="Clear" formaction="@routes.ChessController.clear">
-            }
-          </div>
+@nav("HTWG Chess", stylesheets = List("game")) {
+  <div class="game-container" id="game">
+    <div class="chess-layout">
+      <div class="chess-controls">
+        <div class="chess-info">
+          <h3>Game Info</h3>
+          Current Player: @state.color<br>
+          Half-Moves: @state.halfMoves<br>
+          Full-Moves: @state.fullMoves
         </div>
-        <div class="board-container">
-          @if(playerColor == PieceColor.White) {
-            <chessboard id="chessboard" class="board">
-          } else {
-            <chessboard id="chessboard" class="board flipped">
+        <div class="button-cluster">
+          @postForm {
+            <input class="chess-button" type="submit" value="Undo" formaction="@routes.ChessController.undo">
           }
-            <svg class="coordinates" viewBox="0 0 100 100">
-              @for(num <- 0 until 8) {
-                @fileSvg(num * 12.5 + 10.8, 99, intToFileChar(num), fileBrightnessStr(num))
-                @rankSvg(0.75, num * 12.5 + 3.5, intToRank(num), fileBrightnessStr(num + 1))
-              }
-            </svg>
-            @for(col <- 0 until 8) {
-              @for(row <- 0 until 8) {
-                @if(maybePiece(row, col).isDefined) {
-                  @pieceDiv(row, col, piece(row, col))
-                }
-              }
-            }
-            @for(hint <- legalMoves) {
-              @hintDiv(hint)
-            }
-          </chessboard>
+          @postForm {
+            <input class="chess-button" type="submit" value="Redo" formaction="@routes.ChessController.redo">
+          }
+          @postForm {
+            <input class="chess-button" type="submit" value="Reset" formaction="@routes.ChessController.reset">
+          }
+          @postForm {
+            <input class="chess-button" type="submit" value="Clear" formaction="@routes.ChessController.clear">
+          }
         </div>
-        <div class="chess-controls">
-          <div class="chess-form">
-            <h3>Load FEN position</h3>
-            @helper.form(action = routes.ChessController.putWithFen) {
-              @CSRF.formField
-              <input class="chess-input" id="fen" type="text" name="fen" value="" placeholder="Fen"><input class="chess-button" type="submit" value="Load">
+      </div>
+      <div class="board-container">
+        @if(playerColor == PieceColor.White) {
+          <chessboard id="chessboard" class="board">
+        } else {
+          <chessboard id="chessboard" class="board flipped">
+        }
+          <svg class="coordinates" viewBox="0 0 100 100">
+            @for(num <- 0 until 8) {
+              @fileSvg(num * 12.5 + 10.8, 99, intToFileChar(num), fileBrightnessStr(num))
+              @rankSvg(0.75, num * 12.5 + 3.5, intToRank(num), fileBrightnessStr(num + 1))
             }
-          </div>
-          <div class="chess-form">
-            <h3>Move Pieces</h3>
-            @helper.form(action = routes.ChessController.move) {
-              @CSRF.formField
-              <input class="chess-input" id="from" type="text" name="from" value="" placeholder="From">
-              <input class="chess-input" id="to" type="text" name="to" value="" placeholder="To"><input class="chess-button" type="submit" value="Move">
+          </svg>
+          @for(col <- 0 until 8) {
+            @for(row <- 0 until 8) {
+              @if(maybePiece(row, col).isDefined) {
+                @pieceDiv(row, col, piece(row, col))
+              }
             }
-          </div>
-          <div class="chess-form">
-            <h3>Select Tile</h3>
-            @helper.form(action = routes.ChessController.select) {
-              @CSRF.formField
-              <input class="chess-input" id="tile" type="text" name="tile" value="" placeholder="Tile"><input class="chess-button" type="submit" value="Select">
-            }
-          </div>
+          }
+          @for(hint <- legalMoves) {
+            @hintDiv(hint)
+          }
+        </chessboard>
+      </div>
+      <div class="chess-controls">
+        <div class="chess-form">
+          <h3>Load FEN position</h3>
+          @helper.form(action = routes.ChessController.putWithFen) {
+            @CSRF.formField
+            <input class="chess-input" id="fen" type="text" name="fen" value="" placeholder="Fen"><input class="chess-button" type="submit" value="Load">
+          }
+        </div>
+        <div class="chess-form">
+          <h3>Move Pieces</h3>
+          @helper.form(action = routes.ChessController.move) {
+            @CSRF.formField
+            <input class="chess-input" id="from" type="text" name="from" value="" placeholder="From">
+            <input class="chess-input" id="to" type="text" name="to" value="" placeholder="To"><input class="chess-button" type="submit" value="Move">
+          }
+        </div>
+        <div class="chess-form">
+          <h3>Select Tile</h3>
+          @helper.form(action = routes.ChessController.select) {
+            @CSRF.formField
+            <input class="chess-input" id="tile" type="text" name="tile" value="" placeholder="Tile"><input class="chess-button" type="submit" value="Select">
+          }
         </div>
       </div>
     </div>
