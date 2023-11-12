@@ -1,0 +1,32 @@
+@import "_global.less";
+
+@media (min-width: @break-lg) {
+  main {
+    display: flex !important;
+  }
+  
+  .navbar {
+    height: 100vh;
+    display: inline-block;
+
+    .navbar-collapse .navbar-nav {
+      flex-direction: column !important;
+    }
+    
+    & > .container-fluid {
+      display: inline-block !important;
+      align-self: start;
+    }
+  }
+
+  .nav-pills {
+    flex-direction: column;
+  }
+}
+
+.navbar-brand {
+  img {
+    width: 95px;
+    height: auto;
+  }
+}

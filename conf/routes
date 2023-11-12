@@ -9,6 +9,8 @@ GET     /play                       controllers.ChessController.game
 
 GET     /about                      controllers.ChessController.about()
 
+GET     /profile                    controllers.ChessController.notFinished()
+
 
 # Executing commands
 

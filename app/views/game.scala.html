@@ -1,4 +1,7 @@
 @import de.htwg.se.chess.util.data._
+@import helper._
+@import models.forms._
+
 @(chessboard: 
   Matrix[Option[Piece]], 
   state: ChessState, 
@@ -7,9 +10,6 @@
   moveForm: Form[MoveForm], 
   selectForm: Form[SelectForm],
   fenForm: Form[FenForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
-
-@import helper._
-@import models._
 
 @**********************************************
  * Helper functions for rendering the pieces. *

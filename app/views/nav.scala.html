@@ -1,0 +1,39 @@
+@import models.data._
+
+@(title: String, navItems: Seq[NavItem], stylesheets: List[String] = List(), scripts: List[String] = List())(content: Html)
+
+@navPills() = {
+  @for(item <- navItems) {
+    <li class="nav-item">
+      <a class="nav-link border-bottom rounded-0" href="@item.destUrl">
+        <i class="bi pe-none @item.iconClass"></i>
+        <span class="nav-item-description">@item.name</span>
+      </a>
+    </li>
+  }
+}
+
+
+@main(title, stylesheets.appended("nav"), scripts) {
+  <main>
+    <nav class="navbar navbar-expand-sm flex-shrink-0" aria-label="navbar">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img class="pe-none" src="@routes.Assets.versioned("images/logo.png")">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-pills" aria-controls="nav-pills" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="navbar-collapse collapse" id="nav-pills">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            @navPills()
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      @content
+    </div>
+  </main>
+}

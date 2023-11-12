@@ -11,7 +11,8 @@
 
 package controllers
 
-import models._
+import models.data._
+import models.forms._
 
 import de.htwg.se.chess.util.data._
 import de.htwg.se.chess.util.data.ChessBoard._
@@ -219,6 +220,10 @@ with play.api.i18n.I18nSupport {
 
   def about() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.about())
+  }
+
+  def notFinished() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.notFinished(NavItem.items))
   }
 
 }
