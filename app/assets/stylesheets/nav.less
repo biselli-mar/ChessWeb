@@ -1,5 +1,11 @@
 @import "_global.less";
+@import "board/_pieces.less";
 
+/* Nav- Sidebar vs. Topbar 
+*  - Navbar is displayed at the side for large+ screens
+*/
+
+// Large or greater
 @media (min-width: @break-lg) {
   main {
     display: flex !important;
@@ -7,9 +13,12 @@
   
   .navbar {
     height: 100vh;
-    display: inline-block;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 0 !important;
 
-    .navbar-collapse .navbar-nav {
+    .navbar-collapse, .navbar-nav {
+      height: 100%;
       flex-direction: column !important;
     }
     
@@ -22,11 +31,105 @@
   .nav-pills {
     flex-direction: column;
   }
+
+  .nav-item, .navbar-brand {
+    padding-left: 1.5em * .5;
+  }
+  .navbar-brand {
+    padding-top: 0.5em;
+    img {
+      width: 95px;
+      height: auto;
+    }
+  }
+
+  #color-mode-selector {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media(max-width: @break-sm) {
+  #color-mode-selector {
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+  }
+}
+
+// Less than Large
+@media (max-width: @break-lg) {
+  .navbar-brand {
+    img {
+      height: 40px;
+      width: auto;
+    }
+  }
+}
+
+
+/* Navbar Brand Logo & Icon 
+*  - Logo is switched off for Icon for large to x-large screens
+*/
+
+// Large, up to not including x-large
+@media (min-width: @break-lg) and (max-width: @break-xl) {
+  .nav-item-description {
+    display: none;
+  }
+
+  .navbar-brand {
+    padding-left: 1.5em * .3;
+    padding-right: 1.5em * .2;
+
+    .navbar-brand-icon {
+      display: block;
+      width: 53px;
+      height: 53px;
+      margin: 0;
+      padding: 0;
+
+      .bp;
+    }
+
+    img {
+      display: none;
+    }
+  }
+
+  .tooltip {
+    visibility: visible;
+  }
+}
+
+.navbar {
+  padding-top: 0;
+  flex-direction: row;
+
+  & > .container-fluid {
+    align-items: flex-start;
+    padding-left: 0 !important;
+  }
+
+  a{
+    margin: 0 0em !important;
+  }
+  .navbar-brand:hover, .nav-item:hover {
+    background-color: var(--dark-accent-color);
+  }
 }
 
 .navbar-brand {
-  img {
-    width: 95px;
-    height: auto;
+  align-self: flex-start;
+}
+
+.navbar-brand-icon {
+  display: none;
+}
+
+// Everything except Large
+@media (min-width: @break-xl) or (max-width: @break-lg) {
+  .tooltip {
+    visibility: hidden;
   }
 }

@@ -12,17 +12,15 @@
 <head>
     @* Here's where we render the page title `String`. *@
     <title>@title</title>
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/global.css")">
-    @for(stylesheet <- stylesheets) {
-       <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/" + stylesheet +".css")">
-    }
-    @for(script <- scripts) {
-       <script src="@routes.Assets.versioned("javascripts/" + script +".js")"></script>
-    }
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.ico")">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@@1.11.1/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/global.css")">
+    @for(stylesheet <- stylesheets) {
+       <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/" + stylesheet +".css")">
+    }
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -30,17 +28,11 @@
     * the page content. *@
     @content
 
-    <footer class="footer mt-auto py-2">
-        <div class="container d-flex flex-row">
-            <a href=https://github.com/biselli-mar/ChessWeb>
-                <img alt="" src="@routes.Assets.versioned("images/github-mark.svg")" height="30">
-                Visit us on GitHub!
-            </a>
-            <a href="/about">About</a>
-        </div>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="@routes.Assets.versioned("javascripts/main.js")"></script>
+    @for(script <- scripts) {
+      <script src="@routes.Assets.versioned("javascripts/" + script +".js")"></script>
+    }
 </body>
 
 </html>
