@@ -135,6 +135,7 @@
         </chessboard>
       </div>
       <div class="chess-controls">
+        <div class="chess-form">
 
         @helper.form(action = routes.ChessController.putWithFen) {
           @CSRF.formField
@@ -162,6 +163,7 @@
           </div>
           <button class="btn btn-primary" type="submit">Select</button>
         }
+        </div>
       </div>
     </div>
   </div>
