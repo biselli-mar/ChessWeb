@@ -95,18 +95,18 @@
           Half-Moves: @state.halfMoves<br>
           Full-Moves: @state.fullMoves
         </div>
-        <div class="button-cluster">
+        <div class="button-cluster btn-group">
           @postForm {
-            <input class="chess-button" type="submit" value="Undo" formaction="@routes.ChessController.undo">
+            <button class="btn btn-primary" type="submit" formaction="@routes.ChessController.undo">Undo</button>
           }
           @postForm {
-            <input class="chess-button" type="submit" value="Redo" formaction="@routes.ChessController.redo">
+            <button class="btn btn-secondary" type="submit" formaction="@routes.ChessController.redo">Redo</button>
           }
           @postForm {
-            <input class="chess-button" type="submit" value="Reset" formaction="@routes.ChessController.reset">
+            <button class="btn btn-success" type="submit" formaction="@routes.ChessController.reset">Reset</button>
           }
           @postForm {
-            <input class="chess-button" type="submit" value="Clear" formaction="@routes.ChessController.clear">
+            <button class="btn btn-danger" type="submit" formaction="@routes.ChessController.clear">Clear</button>
           }
         </div>
       </div>
@@ -135,28 +135,33 @@
         </chessboard>
       </div>
       <div class="chess-controls">
-        <div class="chess-form">
-          <h3>Load FEN position</h3>
-          @helper.form(action = routes.ChessController.putWithFen) {
-            @CSRF.formField
-            <input class="chess-input" id="fen" type="text" name="fen" value="" placeholder="Fen"><input class="chess-button" type="submit" value="Load">
-          }
-        </div>
-        <div class="chess-form">
-          <h3>Move Pieces</h3>
-          @helper.form(action = routes.ChessController.move) {
-            @CSRF.formField
-            <input class="chess-input" id="from" type="text" name="from" value="" placeholder="From">
-            <input class="chess-input" id="to" type="text" name="to" value="" placeholder="To"><input class="chess-button" type="submit" value="Move">
-          }
-        </div>
-        <div class="chess-form">
-          <h3>Select Tile</h3>
-          @helper.form(action = routes.ChessController.select) {
-            @CSRF.formField
-            <input class="chess-input" id="tile" type="text" name="tile" value="" placeholder="Tile"><input class="chess-button" type="submit" value="Select">
-          }
-        </div>
+
+        @helper.form(action = routes.ChessController.putWithFen) {
+          @CSRF.formField
+          <div class="form-group">
+            <input class="form-control" id="fen" type="text" name="fen" value="" placeholder="FEN">
+          </div>
+          <button class="btn btn-primary" type="submit">Load</button>
+        }
+
+        @helper.form(action = routes.ChessController.move) {
+          @CSRF.formField
+          <div class="form-group">
+            <input class="form-control" id="from" type="text" name="from" value="" placeholder="From">
+          </div>
+          <div class="form-group">
+            <input class="form-control" id="to" type="text" name="to" value="" placeholder="To">
+          </div>
+          <button class="btn btn-primary" type="submit">Move</button>
+        }
+
+        @helper.form(action = routes.ChessController.select) {
+          @CSRF.formField
+          <div class="form-group">
+            <input class="form-control" id="tile" type="text" name="tile" value="" placeholder="Tile">
+          </div>
+          <button class="btn btn-primary" type="submit">Select</button>
+        }
       </div>
     </div>
   </div>

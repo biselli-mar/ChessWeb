@@ -96,12 +96,22 @@ chessboard {
   }
 
   .button-cluster {
-    .dark-offset;
     display: grid;
     padding: 0 1em;
     grid-template: 
         "a b" auto
         "c d" auto / 50%;
+    grid-gap: 0.25em;
+  }
+
+  .form-group {
+    > * {
+      margin-bottom: 0.5em;
+    }
+
+    > :first-child {
+      margin-top: 0.5em;
+    }
   }
 }
 
