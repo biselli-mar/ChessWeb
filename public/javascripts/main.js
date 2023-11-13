@@ -6,6 +6,20 @@
 
 (() => {
     'use strict'
+
+    const lightIcon = 'bi-brightness-high'
+    const darkIcon = 'bi-moon-stars'
+    
+    const themeSwitcher = document.querySelector('#color-mode-switch')
+
+    if (themeSwitcher) {
+      themeSwitcher.addEventListener('click', () => {
+        const theme = themeSwitcher.checked ? 'dark' : 'light'
+        setStoredTheme(theme)
+        setTheme(theme)
+        showActiveTheme(theme)
+      })
+    }
   
     const getStoredTheme = () => localStorage.getItem('theme')
     const setStoredTheme = theme => localStorage.setItem('theme', theme)
@@ -29,28 +43,29 @@
   
     setTheme(getPreferredTheme())
   
-    const showActiveTheme = (theme, focus = false) => {
-      const themeSwitcher = document.querySelector('#bd-theme')
+    const showActiveTheme = (theme) => {
   
       if (!themeSwitcher) {
         return
       }
-  
-      const themeSwitcherText = document.querySelector('#bd-theme-text')
-      const activeThemeIcon = document.querySelector('.theme-icon-active use')
-      const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-      const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href')
+
+      const themeIcon = document.querySelector('#color-mode-icon')
   
       document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
         element.classList.remove('active')
         element.setAttribute('aria-pressed', 'false')
       })
   
-      btnToActive.classList.add('active')
-      btnToActive.setAttribute('aria-pressed', 'true')
-      activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-      const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-      themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+      if (theme === 'dark') {
+        // Set themeSwitcher checkbox to checked
+        themeSwitcher.checked = true
+        themeIcon.classList.remove(lightIcon)
+        themeIcon.classList.add(darkIcon)
+      } else {
+        themeSwitcher.checked = false
+        themeIcon.classList.remove(darkIcon)
+        themeIcon.classList.add(lightIcon)
+      }
   
       if (focus) {
         themeSwitcher.focus()
@@ -73,7 +88,7 @@
             const theme = toggle.getAttribute('data-bs-theme-value')
             setStoredTheme(theme)
             setTheme(theme)
-            showActiveTheme(theme, true)
+            showActiveTheme(theme)
           })
         })
     })
