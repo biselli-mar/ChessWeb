@@ -8,15 +8,18 @@
 }
 
 .welcome {
-  .dark-offset-transparent;
-  width: 100%;
-  img {
-    width: 40vw;
-    height: auto;
-  }
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    .dark-offset-transparent;
+    width: 100%;
+    margin-bottom: 20px; /* Add margin to create space between image and button */
+    
+    img {
+        width: 40vw;
+        height: auto;
+    }
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .bishopAnimation {
@@ -26,14 +29,14 @@
     background-color: transparent;
     z-index: -1;
 
-  b {
-    width: 10vw;
-    height: 10vw;
-    background-image: url('/assets/images/pieces/B_BISHOP.svg');
-    background-size: cover;
-    position: absolute;
-    animation: moveX 5s linear 0s infinite alternate, moveY 3.4s linear 0s infinite alternate;
-  }
+    b {
+        width: 10vw;
+        height: 10vw;
+        background-image: url('/assets/images/pieces/B_BISHOP.svg');
+        background-size: cover;
+        position: absolute;
+        animation: moveX 5s linear 0s infinite alternate, moveY 3.4s linear 0s infinite alternate;
+    }
 }
 
 @keyframes moveX {
@@ -47,3 +50,6 @@
 }
 
 
+.chess-button {
+    margin-top: 20px; 
+}
