@@ -1,20 +1,11 @@
-@import "colors/_colors.less";
+@import "_colors.less";
 @import "_global";
 
-:root {
-  --background-color: @background-color;
-  --accent-background: @accent-background;
-  --dark-accent-background: @dark-accent-background;
-  --dark-accent-background-transparent: @dark-accent-background-transparent;
-  --accent-color: @accent-color;
-  --dark-accent-color: @dark-accent-color;
-  --text-color: @text-color;
-}
 
 
 .chess-button {
-  background-color: var(--accent-color);
-  border: 1px solid var(--text-color);
+  background-color: var(--bs-primary-border-subtle);
+  border: 1px solid var(--bs-body-color);
   border-radius: 0;
   cursor: pointer;
   font-size: 1em;
@@ -79,86 +70,6 @@
     transform: scale(1);
   }
     
-}
-
-.chess-input {
-  border: 1px solid var(--text-color);
-  border-radius: 0;
-  font-family: @font-family;
-  font-size: 1em;
-  padding: 0.2em 0.4em;
-  user-select: none;
-  width: 10ex;
-
-  &:focus {
-    border: 1px dashed var(--dark-accent-color);
-    outline: none;
-  }
-}
-
-.page-with-navbar {
-  display: flex;
-  flex-direction: row;
-
-  .navigation-bar {
-    .dark-inset;
-    display: flex;
-    flex-direction: column;
-    width: auto;
-    height: @page-size-with-footer;
-  }
-
-  @media screen and (max-height: @min-height-breakpoint) and (min-width: @min-width) {
-    min-height: @min-height-breakpoint;
-
-    .navigation-bar {
-      height: @min-height-breakpoint;
-      width: fit-content;
-      header {
-        height: 4em;
-        width: auto;
-      }
-    }
-  }
-
-  @media screen and (min-width: @min-width) and (min-height: @min-height-breakpoint) {
-    min-height: @page-size-with-footer;
-    max-height: @page-size-with-footer;
-
-    .navigation-bar {
-      header {
-        float: left;
-      }
-    }
-  }
-
-  @media screen and (max-width: @min-width) {
-      display: flex;
-      flex-direction: column;
-
-      .navigation-bar {
-        display: flex;
-        flex-direction: row;
-        height: 4em;
-        header {
-            height: inherit;
-        }
-      }
-  }
-}
-
-footer {
-  .dark-offset-transparent;
-}
-
-header {
-  .dark-offset-transparent;
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-  padding: @footer-padding;
-  width: auto;
-  height: 5vh;
 }
 
 a {
