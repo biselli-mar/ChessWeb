@@ -19,8 +19,8 @@ chessboard {
   margin-top: @footer-padding;
   width: 100%;
   height: 100%;
-  padding-left: 1rem;
-  padding-right: 1rem; 
+  padding-left: 1.5rem;
+  padding-right: 1.5rem; 
 
   @media screen and (min-width: @break-lg) and (min-height: @min-height-breakpoint) {
     flex-direction: row;
@@ -93,22 +93,11 @@ chessboard {
     align-items: start;
     padding: 1em;
 
-    form {
-      padding: 0 2em;
-    }
   }
 
   @media screen and (max-width: @break-sm) {
     flex-direction: column;
     align-items: center;
-  }
-
-  .chess-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding-left: 1em;
-    padding-right: 1em;
   }
 
   .button-cluster {
@@ -131,4 +120,55 @@ chessboard {
   }
 }
 
+@media (min-width: @break-lg) {
+  .btn-bar {
+    margin-top: 1rem;
 
+    .btn {
+      border-top-right-radius: 0%;
+      border-bottom-right-radius: 0%;
+    }
+  }
+  
+  #ctrl-buttons-horizontal {
+    display: none;
+  }
+  #ctrl-buttons-vertical {
+    display: flex;
+    justify-content: end;
+  }
+}
+
+@media (max-width: @break-lg) {
+  #ctrl-buttons-horizontal {
+    display: flex;
+  }
+  #ctrl-buttons-vertical {
+    display: none;
+  }
+
+  .btn-bar {
+    .btn {
+      border-bottom-left-radius: 0%;
+      border-bottom-right-radius: 0%;
+    }
+  }
+
+  #info-ctrl {
+    align-items: end;
+    padding: 0;
+  }
+
+  #play-ctrl {
+    form {
+      display: flex;
+      flex-direction: row;
+    }
+  }
+}
+
+@media (max-width: @break-sm) {
+  #info-ctrl {
+    align-items: center;
+  }
+}
