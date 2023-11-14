@@ -27,7 +27,7 @@
         </button>
       
         <div class="navbar-collapse collapse me-auto me-lg-0" id="nav-pills">
-          <ul class="navbar-nav me-auto mb-2 me-lg-0 mb-lg-0 w-100">
+          <ul class="navbar-nav me-auto me-lg-0 w-100">
             @navPills()
           </ul>
           <div class="d-flex flex-row" id="color-mode-selector">
@@ -39,8 +39,6 @@
         </div>
       </div>
     </nav>
-    <div class="container-fluid">
-      @content
-    </div>
+    @content
   </main>
 }

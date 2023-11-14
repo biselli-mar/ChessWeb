@@ -1,0 +1,88 @@
+  <div class="about-layout">
+    <div class="title">
+      <h1>About Chess</h1>
+      <p>
+        <b>Chess</b> is a classic two-player strategy board game that has been played for
+        centuries. It is a game of skill, strategy, and patience, and is enjoyed
+        by people of all ages and backgrounds.
+      </p>
+    </div>
+    <div class="game-rules">
+      <div class="how-to-play">
+        <h2>How to Play</h2>
+        <span class="about-text">
+          The objective of the game is to <i><b>checkmate</b></i> your opponent's king, which
+          means putting their king in a position where it is under attack (in
+          "<i>check</i>") and there is no way to move it out of attack (in "<i>mate</i>").
+        </span>
+        <span class="about-text">
+            Each player starts with <b>16 pieces</b>: one king, one queen, two rooks, two
+            knights, two bishops, and eight pawns. The pieces move in different ways,
+            and the player must use strategy to capture their opponent's pieces while
+            protecting their own.
+        </span>
+      </div>
+
+      <div>
+        <h2>Chess Piece Movements</h2>
+        <div class="piece-movement">
+          <dl>
+            <dt><b>Pawn (P)</b></dt>
+            <dd>Pawns move forward one square at a time. On their first move,
+              pawns have the option to move forward two squares. Pawns capture
+              diagonally one square forward. Pawns can't move backward.</dd>
+          </dl>
+          <img src="@routes.Assets.versioned("images/pieces/B_PAWN_L.svg")"/></td>
+
+          <dl>
+            <dt><b>Rook (R)</b></dt>
+            <dd>Rooks move horizontally or vertically any number of squares.
+              Rooks can't jump over other pieces.</dd>
+          </dl>
+          <img src="@routes.Assets.versioned("images/pieces/B_ROOK_L.svg")"/></td>
+
+          <dl>
+            <dt><b>Knight (N)</b></dt>
+            <dd>Knights move in an "L" shape, two squares horizontally or vertically and then one square perpendicular to that. Knights can jump over other pieces.</dd>
+          </dl>
+          <img src="@routes.Assets.versioned("images/pieces/B_KNIGHT_L.svg")"/></td>
+
+          <dl>
+            <dt><b>Bishop (B)</b></dt>
+            <dd>Bishops move diagonally any number of squares. Bishops can't jump over other pieces.</dd>
+          </dl>
+          <img src="@routes.Assets.versioned("images/pieces/B_BISHOP_L.svg")"/></td>
+
+          <dl>
+            <dt><b>Queen (Q)</b></dt>
+            <dd>Queens move horizontally, vertically, or diagonally any number of squares. Queens can't jump over other pieces.</dd>
+          </dl>
+          <img src="@routes.Assets.versioned("images/pieces/B_QUEEN_L.svg")"/></td>
+
+          <dl>
+            <dt><b>King (K)</b></dt>
+            <dd>Kings move one square in any direction. Kings can't jump over other pieces. Kings can't move into check.</dd>
+          </dl>
+          <img src="@routes.Assets.versioned("images/pieces/B_KING_L.svg")"/></td>
+        </div>
+      </div>
+    </div>
+
+    <div class="dev-info">
+      <div>
+        <h3>Authors</h3>
+        <p>
+          This project was created by 
+          <a href="https://github.com/biselli-mar" >Marcel Biselli</a> and
+            <a href="https://github.com/emanuelk02" >Emanuel Kupke</a> as part of the Web Applications course at
+            the University of Applied Sciences Konstanz.
+        </p>
+      </div>
+      <div class="legal-container">
+        <h3>Legal</h3>
+        <div class="legal">
+          <span>Piece Sprites provided by: <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces/Standard">Cburnett,</a> <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0,</a> via Wikimedia Commons</span>
+        </div>
+      </div>
+    </div>
+  </div>
