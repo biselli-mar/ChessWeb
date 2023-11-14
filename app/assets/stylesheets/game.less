@@ -10,14 +10,19 @@ chessboard {
   background-image: url('/assets/images/board_green.png');
 }
 
+@small-board-size: calc(e('100vw - 2rem'));
+
 .game-container {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: @footer-padding;
   width: 100%;
+  height: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem; 
 
-  @media screen and (min-width: @min-width) and (min-height: @min-height-breakpoint) {
+  @media screen and (min-width: @break-lg) and (min-height: @min-height-breakpoint) {
     flex-direction: row;
     height: @page-size-with-footer;
     .chess-layout {
@@ -25,23 +30,26 @@ chessboard {
     }
     .board-container {
       min-width: @page-size-with-footer;
-      width: @page-size-with-footer;
-      height: @page-size-with-footer;
     }
   }
   @media screen and (max-height: @min-height-breakpoint) {
     .board-container {
       min-height: @min-height-breakpoint;
       min-width: @min-height-breakpoint;
-      width: @min-height-breakpoint;
-      height: @min-height-breakpoint;
     }
   }
-  @media screen and (max-width: @min-width) {
+  @media screen and (max-width: @break-lg) {
     flex-direction: column;
+    .chess-layout {
+      width: @small-board-size;
+    }
     .board-container {
-      width: 100vw;
-      height: 100vw;
+      width: @small-board-size;
+      height: @small-board-size;
+    }
+    .board {
+      width: @small-board-size;
+      height: @small-board-size;
     }
   }
 }
@@ -71,18 +79,27 @@ chessboard {
 .chess-info {
   float: left;
   margin: 1em 1em;
-  font-size: medium;
 }
 
 .chess-controls {
   display: flex;
   justify-content: center;
-  @media screen and (min-width: @min-width) {
+  @media screen and (min-width: @break-lg) {
     flex-direction: column;
   }
 
-  @media screen and (max-width: @min-width) {
+  @media screen and (max-width: @break-lg) {
     flex-direction: row;
+    align-items: start;
+    padding: 1em;
+
+    form {
+      padding: 0 2em;
+    }
+  }
+
+  @media screen and (max-width: @break-sm) {
+    flex-direction: column;
     align-items: center;
   }
 
