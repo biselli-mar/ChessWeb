@@ -11,10 +11,12 @@
     touch-action: none;
     user-select: none;
     will-change: transform;
+}
 
-    .dragging {
-        cursor: grabbing;
-    }
+.dragging {
+    cursor: grabbing;
+    transform: translate(var(--chess-mouse-x), var(--chess-mouse-y));
+    z-index: 100;
 }
 
 .bb {

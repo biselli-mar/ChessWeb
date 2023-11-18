@@ -192,15 +192,38 @@ with play.api.i18n.I18nSupport {
     val wsReq = ws.url(controllerURL + "/states")
         .addQueryStringParameters("query" -> "selected")
     if (selectData.tile.isDefined) {
-      wsReq
-        .addQueryStringParameters("tile" -> s"\"${selectData.tile.get}\"")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
+      ws.url(controllerURL + "/fen")
+        .get()
+        .flatMap { fenResponse =>
+      fenResponse.status match {
+      case 200 => {
+        ws.url(legalityURL + "/moves")
+              .addQueryStringParameters("tile" -> selectData.tile.get)
+              .withBody(s"{\"fen\": \"${fenResponse.body}\"}")
+              .get()
+              .flatMap { legalityResponse =>
+                legalityResponse.status match {
+                  case 200 => {
+                val legalMovesJsValue = (Json.parse(legalityResponse.body) \ (selectData.tile.get)).get
+                val legalMoves = legalMovesJsValue.as[List[String]]
+                wsReq
+                  .addQueryStringParameters("tile" -> s"\"${selectData.tile.get}\"")
+                  .put("")
+                  .map { response =>
+                    response.status match {
+                      case 200 => Ok(legalMovesJsValue)
+                      case _ => BadRequest(response.body)
+                    }
+                  }
+                }
+                case _ => Future.successful(BadRequest(legalityResponse.body))
+              }
+            }
+      }
+      case _ => 
+          Future.successful(BadRequest(fenResponse.body))
         }
+      }
     } else {
       wsReq
         .put("")
