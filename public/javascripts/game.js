@@ -23,6 +23,45 @@ main.on('mousemove', (event) => {
     }
 })
 
+function hintDiv(destTile, srcTile) {
+    const hint = document.createElement('div');
+    hint.classList.add('hint');
+    const squareNum = '' + (files.indexOf(destTile[0]) + 1) + destTile[1];
+    if ($('.square-' + squareNum)[0]) {
+        hint.classList.add('hint-capture');
+    } else {
+        hint.classList.add('hint-move');
+    }
+    hint.classList.add('square-' + squareNum);
+    hint.addEventListener('click', () => {
+        postMove(srcTile, destTile);
+    });
+
+    return hint;
+}
+
+function postMove(from, to) {
+    const moveForm = $('#move-form');
+
+    const formData = {
+        csrfToken: moveForm.children('input[name="csrfToken"]').val(),
+        from: from,
+        to: to
+    }
+
+    $.ajax({
+        type:'POST',
+        url: '/play/move',
+        data: formData,
+        success: function() {
+            location.reload();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error("Encountered error while moving piece\nError code: " + textStatus + "\n" + errorThrown);
+        }
+    });
+}
+
 
 pieces.on('mousedown', (event) => {
     trackMouse = true;
@@ -34,26 +73,32 @@ pieces.on('mousedown', (event) => {
     // Send post request to server to select that piece
     const selectForm = $('#select-form');
 
+    $('.hint').remove();
+
     const piece = event.target;
     piece.classList.forEach((className) => {
         if (className.startsWith('square-')) {
-            const file = files[parseInt(className[7]) - 1];
-            const rank = className[8];
+            const tile = files[parseInt(className[7]) - 1] + className[8];
 
             const formData = {
                 csrfToken: selectForm.children('input[name="csrfToken"]').val(),
-                tile: file + rank
+                tile: tile
             }
 
-            $.post('/play/select', formData, (response) => {
-                if (response.success) {
-                    console.log('Successfully selected piece');
-                } else {
-                    console.log('Failed to select piece');
+            $.ajax({
+                type:'POST',
+                url: '/play/select',
+                data: formData,
+                dataType: 'json',
+                success: function(data) {
+                    for (const move of data) {
+                        chessBoard.append(hintDiv(move, tile));
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Encountered error while receiving legal moves\nError code: " + textStatus + "\n" + errorThrown);
                 }
             });
-
-            selectForm.submit();
             return;
         }
     });

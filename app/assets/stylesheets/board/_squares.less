@@ -9,15 +9,25 @@
     top: 0;
     position: absolute;
     z-index: 1;
+    cursor: pointer;
 
     &-move {
         background-color: rgba(0, 0, 0, 0.2);
         padding: 4.2%;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
     }
 
     &-capture {
-        border: 5px solid rgba(0, 0, 0, 0.1);
+        border: 5px solid rgba(0, 0, 0, 0.2);
         border-width: 1vh;
+
+        &:hover {
+            border: 5px solid rgba(0, 0, 0, 0.5);
+            border-width: 1vh;
+        }
     }
 }
 

@@ -198,7 +198,7 @@ with play.api.i18n.I18nSupport {
       fenResponse.status match {
       case 200 => {
         ws.url(legalityURL + "/moves")
-              .addQueryStringParameters("tile" -> selectData.tile.get)
+              .addQueryStringParameters("tile" -> s"\"${selectData.tile.get}\"")
               .withBody(s"{\"fen\": \"${fenResponse.body}\"}")
               .get()
               .flatMap { legalityResponse =>
@@ -212,16 +212,16 @@ with play.api.i18n.I18nSupport {
                   .map { response =>
                     response.status match {
                       case 200 => Ok(legalMovesJsValue)
-                      case _ => BadRequest(response.body)
+                      case _ => BadRequest(response.body + " \n in selecting")
                     }
                   }
                 }
-                case _ => Future.successful(BadRequest(legalityResponse.body))
+                case _ => Future.successful(BadRequest(legalityResponse.body + " \n at legality"))
               }
             }
       }
       case _ => 
-          Future.successful(BadRequest(fenResponse.body))
+          Future.successful(BadRequest(fenResponse.body + " \n at fenGet"))
         }
       }
     } else {
@@ -230,7 +230,7 @@ with play.api.i18n.I18nSupport {
         .map { response =>
           response.status match {
             case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
+            case _ => BadRequest(response.body + " \n no tile defined")
           }
         }
       }
