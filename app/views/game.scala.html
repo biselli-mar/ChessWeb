@@ -88,6 +88,34 @@
 @nav("HTWG Chess", stylesheets = List("game"), scripts = List("game")) {
   <div class="game-container" id="game">
     <div class="chess-layout">
+      <div class="chess-controls" id="info-ctrl">
+        <div class="chess-info">
+          <h5>Game Info</h5>
+          <small>
+            Current Player: @state.color<br>
+            Half-Moves: @state.halfMoves<br>
+            Full-Moves: @state.fullMoves
+          </small>
+        </div>
+        <form class="btn-bar" id="ctrl-buttons-vertical" method="post">
+          @CSRF.formField
+          <div class="btn-group-vertical" role="group">
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.undo">Undo</button>
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.redo">Redo</button>
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.reset">Reset</button>
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.clear">Clear</button>
+          </div>
+        </form>
+        <form class="btn-bar" id="ctrl-buttons-horizontal" method="post">
+          @CSRF.formField
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.undo">Undo</button>
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.redo">Redo</button>
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.reset">Reset</button>
+            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.clear">Clear</button>
+          </div>
+        </form>
+      </div>
       <div class="board-container">
         @if(playerColor == PieceColor.White) {
           <chessboard id="chessboard" class="board">
