@@ -28,6 +28,7 @@
   <div
     id="@{piece.toFenChar + "-" + (col + 1) + (row + 1)}"
     class="@{"piece " + piece.getColor.toFenChar + piece.toFenChar.toLowerCase() + " square-" + (col + 1) + (8 - row)}"
+    draggable="true"
   ></div>
 }
 
@@ -111,7 +112,7 @@
           }
         </chessboard>
       </div>
-      <div class="chess-controls mx-1" id="play-ctrl">
+      <div class="chess-controls mx-1 visually-hidden" id="play-ctrl">
         @helper.form(action = routes.ChessController.putWithFen, Symbol("id") -> "fen-form") {
           @CSRF.formField
           <div class="form-group form-floating">

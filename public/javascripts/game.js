@@ -3,37 +3,40 @@
 "use strict"
 
 const chessBoard = $('#chessboard');
-const chessBoardOffset = chessBoard.offset();
-const pieceOffset = chessBoard.width() / 12;  // Divide by a bit more than 8 so that piece is closer to mouse
-const chessBoardOffsetLeft = chessBoardOffset.left + pieceOffset;
-const chessBoardOffsetTop = chessBoardOffset.top + pieceOffset;
-const root = document.documentElement;
-const main = $('main');
-
-const files = 'ABCDEFGH';
-
 const pieces = $('.piece');
+const fileChars = 'ABCDEFGH';
 
-let trackMouse = false;
-
-main.on('mousemove', (event) => {
-    if (trackMouse) {
-        root.style.setProperty('--chess-mouse-x', (event.clientX - chessBoardOffsetLeft) + 'px');
-        root.style.setProperty('--chess-mouse-y', (event.clientY - chessBoardOffsetTop) + 'px');
-    }
-})
+function getColRow(tile) {
+    return '' + (fileChars.indexOf(tile[0]) + 1) + tile[1];
+}
 
 function hintDiv(destTile, srcTile) {
     const hint = document.createElement('div');
     hint.classList.add('hint');
-    const squareNum = '' + (files.indexOf(destTile[0]) + 1) + destTile[1];
+    const squareNum = getColRow(destTile);
     if ($('.square-' + squareNum)[0]) {
         hint.classList.add('hint-capture');
     } else {
         hint.classList.add('hint-move');
     }
     hint.classList.add('square-' + squareNum);
+    
     hint.addEventListener('click', () => {
+        postMove(srcTile, destTile);
+    });
+
+    hint.addEventListener('dragover', (event) => {
+        hint.classList.add('hint-drop');
+        event.preventDefault();
+    });
+
+    hint.addEventListener('dragleave', (event) => {
+        hint.classList.remove('hint-drop');
+        event.preventDefault();
+    });
+
+    hint.addEventListener('drop', (event) => {
+        event.preventDefault();
         postMove(srcTile, destTile);
     });
 
@@ -57,18 +60,12 @@ function postMove(from, to) {
             location.reload();
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            console.error("Encountered error while moving piece\nError code: " + textStatus + "\n" + errorThrown);
+            alert("Encountered error while moving piece\nError code: " + textStatus + "\n" + errorThrown);
         }
     });
 }
 
-
 pieces.on('mousedown', (event) => {
-    trackMouse = true;
-    // Reset property since values of previous move could be different
-    root.style.setProperty('--chess-mouse-x', (event.clientX - chessBoardOffsetLeft) + 'px');
-    root.style.setProperty('--chess-mouse-y', (event.clientY - chessBoardOffsetTop) + 'px');
-    event.target.classList.add('dragging');
 
     // Send post request to server to select that piece
     const selectForm = $('#select-form');
@@ -78,7 +75,7 @@ pieces.on('mousedown', (event) => {
     const piece = event.target;
     piece.classList.forEach((className) => {
         if (className.startsWith('square-')) {
-            const tile = files[parseInt(className[7]) - 1] + className[8];
+            const tile = fileChars[parseInt(className[7]) - 1] + className[8];
 
             const formData = {
                 csrfToken: selectForm.children('input[name="csrfToken"]').val(),
@@ -102,9 +99,23 @@ pieces.on('mousedown', (event) => {
             return;
         }
     });
-})
+});
 
-pieces.on('mouseup', (event) => {
-    trackMouse = false;
-    event.target.classList.remove('dragging');
-})
+pieces.each((index, piece) => {
+    piece.addEventListener('dragstart', (event) => {
+        piece.classList.add('visually-hidden');
+
+        const pieceImageSrc = window.getComputedStyle(piece).backgroundImage;
+        const pieceWidth = piece.offsetWidth;
+
+        const dragImage = document.createElement('img');
+        dragImage.src = pieceImageSrc.substring(5, pieceImageSrc.length - 2); // remove `url("` and `")`
+        dragImage.width = pieceWidth;
+
+        event.dataTransfer.setDragImage(dragImage, pieceWidth, pieceWidth);
+        event.dataTransfer.setData('text/plain', piece.id); // Send the piece id
+    });
+    piece.addEventListener('dragend', () => {
+        piece.classList.remove('visually-hidden');
+    });
+});
