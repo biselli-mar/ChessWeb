@@ -14,7 +14,7 @@ const captureSound = $('#captureSound')[0];
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
-const animationDuration = 500;  // milliseconds
+const animationDuration = 350;  // milliseconds
 
 //=============== Helper Functions ==================
 
@@ -191,7 +191,6 @@ function processMove(from, to, animate) {
             fromPieceDiv.removeClass(position[from]);
             fromPieceDiv.addClass(newPosition[to]);
             fromPiece = newPosition[to];
-            fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
         }
         if (animate) {
             const pieceWidth = fromPieceDiv.width();
