@@ -6,6 +6,7 @@
 
 const chessBoard = $('#chessboard');
 const moveForm = $('#move-form');
+const selectHighlight = $('#select-highlight');
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
@@ -48,6 +49,10 @@ function pieceMousedownHandler(event) {
     piece.classList.forEach((className) => {
         if (className.startsWith('square-')) {
             const tile = fileChars[parseInt(className[7]) - 1] + className[8];
+
+            selectHighlight.addClass(className);
+            selectHighlight.removeClass('visually-hidden');
+
             const moves = legalMoves[tile];
             if (moves === undefined) return;
             for (const move of moves) {
@@ -147,6 +152,7 @@ function fillBoard(position) {
         piece.addEventListener('dragstart', pieceDragstartHandler);
         piece.addEventListener('dragend', () => {
             piece.classList.remove('visually-hidden');
+
         });
     });
 }
@@ -157,6 +163,12 @@ function processMove(from, to, animate) {
     const colRowFrom = getColRow(from);
     const colRowTo = getColRow(to);
     const fromPiece = position[from];
+    selectHighlight.addClass('visually-hidden');
+    selectHighlight[0].classList.forEach((className) => {
+        if (className.startsWith('square-')) {
+            selectHighlight.removeClass(className);
+        }
+    });
     const fromPieceDiv = $('.square-' + colRowFrom);
     getPosition((newPosition) => {
         if (animate) {
@@ -201,7 +213,7 @@ function processMove(from, to, animate) {
                 fromPieceDiv.attr('id', fromPiece + '-' + colRowTo);
             }
         }
-        
+
         position = newPosition;
         legalMoves = {};
         getLegalMoves((data) => {
