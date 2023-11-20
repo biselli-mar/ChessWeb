@@ -7,6 +7,8 @@
 const chessBoard = $('#chessboard');
 const moveForm = $('#move-form');
 const selectHighlight = $('#select-highlight');
+const moveHighlightFrom = $('#move-highlight-from');
+const moveHighlightTo = $('#move-highlight-to');
 const moveSound = $('#moveSound')[0];
 const captureSound = $('#captureSound')[0];
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
@@ -36,8 +38,17 @@ function getTileTransformValues(tile, pieceWidth) {
     
     }
 }
+
 function playMoveSound() {
     moveSound.play();
+}
+
+function removeSquareClass(div) {
+    div[0].classList.forEach((className) => {
+        if (className.startsWith('square-')) {
+            div.removeClass(className);
+        }
+    });
 }
 function playCaptureSound() {
     captureSound.play();
@@ -58,6 +69,7 @@ function pieceMousedownHandler(event) {
         if (className.startsWith('square-')) {
             const tile = fileChars[parseInt(className[7]) - 1] + className[8];
 
+            removeSquareClass(selectHighlight);
             selectHighlight.addClass(className);
             selectHighlight.removeClass('visually-hidden');
 
@@ -113,7 +125,7 @@ function hintDiv(destTile, srcTile) {
     const hint = document.createElement('div');
     hint.classList.add('hint');
     const squareNum = getColRow(destTile);
-    if ($('.square-' + squareNum)[0]) {
+    if ($('.piece.square-' + squareNum)[0]) {
         hint.classList.add('hint-capture');
     } else {
         hint.classList.add('hint-move');
@@ -170,18 +182,17 @@ function processMove(from, to, animate) {
     
     const colRowFrom = getColRow(from);
     const colRowTo = getColRow(to);
-    const fromPiece = position[from];
+    let fromPiece = position[from];
     selectHighlight.addClass('visually-hidden');
-    selectHighlight[0].classList.forEach((className) => {
-        if (className.startsWith('square-')) {
-            selectHighlight.removeClass(className);
-        }
-    });
-    const fromPieceDiv = $('.square-' + colRowFrom);
+    removeSquareClass(selectHighlight);
+    const fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
     getPosition((newPosition) => {
+        if (position[from] !== newPosition[to]) { // promotion
+            fromPieceDiv.removeClass(position[from]);
+            fromPieceDiv.addClass(newPosition[to]);
+            fromPiece = newPosition[to];
+        }
         if (animate) {
-            // animate piece from from to to
-            
             const pieceWidth = fromPieceDiv.width();
             const fromTransform = getTileTransformValues(from, pieceWidth);
             const toTransform = getTileTransformValues(to, pieceWidth);
@@ -218,7 +229,7 @@ function processMove(from, to, animate) {
         const diff = getPositionDiff(newPosition);
         for (const [tile, piece] of Object.entries(diff)) {
             if (tile !== from && piece === undefined) {
-                $('.square-' + getColRow(tile)).remove();
+                $('.square-' + getColRow(tile)).remove('.piece');
             } else if (tile !== to && piece !== undefined) {
                 chessBoard.append(pieceDiv(piece, tile));
             } else if (tile === to && !animate) {
@@ -233,6 +244,13 @@ function processMove(from, to, animate) {
         getLegalMoves((data) => {
             legalMoves = data;
         });
+
+        removeSquareClass(moveHighlightFrom);
+        moveHighlightFrom.removeClass('visually-hidden');
+        moveHighlightFrom.addClass('square-' + colRowFrom);
+        removeSquareClass(moveHighlightTo);
+        moveHighlightTo.removeClass('visually-hidden');
+        moveHighlightTo.addClass('square-' + colRowTo);
     });
 }
 
