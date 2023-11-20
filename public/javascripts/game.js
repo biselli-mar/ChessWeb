@@ -8,6 +8,7 @@ const chessBoard = $('#chessboard');
 const moveForm = $('#move-form');
 const selectHighlight = $('#select-highlight');
 const moveSound = $('#moveSound')[0];
+const captureSound = $('#captureSound')[0];
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
@@ -37,6 +38,9 @@ function getTileTransformValues(tile, pieceWidth) {
 }
 function playMoveSound() {
     moveSound.play();
+}
+function playCaptureSound() {
+    captureSound.play();
 }
 
 //=============== Event Listeners ==================
@@ -163,7 +167,7 @@ function fillBoard(position) {
 
 function processMove(from, to, animate) {
     $('.hint').remove();
-    playMoveSound();
+    
     const colRowFrom = getColRow(from);
     const colRowTo = getColRow(to);
     const fromPiece = position[from];
@@ -204,6 +208,12 @@ function processMove(from, to, animate) {
                 }
             });
         }
+        if($('.piece.square-' + getColRow(to))[0] !== undefined){
+            playCaptureSound();
+        }
+        else{
+            playMoveSound();
+        }     
         $('.square-' + getColRow(to)).remove();
         const diff = getPositionDiff(newPosition);
         for (const [tile, piece] of Object.entries(diff)) {
