@@ -24,6 +24,16 @@ object FenParser:
         Vector.tabulate(fieldSize) { rank => fenList.drop(rank * fieldSize).take(fieldSize) }
       )
 
+    def mapFromFen (fen: String): Map[Tile, Piece] =
+      val matrix = matrixFromFen(fen)
+      Map.from(
+        for
+          row <- 0 until matrix.size
+          col <- 0 until matrix.size
+          piece <- matrix.cell(row, col)
+        yield Tile.withRowCol(row, col, matrix.size) -> piece
+      )
+
     def stateFromFen(fen: String): ChessState = 
         val fieldSize = fen.count(c => c == '/') + 1
         ChessState(fen, fieldSize)

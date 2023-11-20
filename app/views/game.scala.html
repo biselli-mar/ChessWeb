@@ -118,9 +118,9 @@
       </div>
       <div class="board-container">
         @if(playerColor == PieceColor.White) {
-          <chessboard id="chessboard" class="board">
+          <chessboard id="chessboard" class="board visually-hidden">
         } else {
-          <chessboard id="chessboard" class="board flipped">
+          <chessboard id="chessboard" class="board visually-hidden flipped">
         }
           <svg class="coordinates" viewBox="0 0 100 100">
             @for(num <- 0 until 8) {
@@ -128,7 +128,7 @@
               @rankSvg(0.75, num * 12.5 + 3.5, intToRank(num), fileBrightnessStr(num + 1))
             }
           </svg>
-          @for(col <- 0 until 8) {
+          @*@for(col <- 0 until 8) {
             @for(row <- 0 until 8) {
               @if(maybePiece(row, col).isDefined) {
                 @pieceDiv(row, col, piece(row, col))
@@ -137,7 +137,7 @@
           }
           @for(hint <- legalMoves) {
             @hintDiv(hint)
-          }
+          }*@
         </chessboard>
       </div>
       <div class="chess-controls mx-1 visually-hidden" id="play-ctrl">

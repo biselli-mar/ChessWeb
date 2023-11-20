@@ -253,4 +253,43 @@ with play.api.i18n.I18nSupport {
     Ok(views.html.notFinished())
   }
 
+  def getLegalMoves = Action.async { implicit request: Request[AnyContent] =>
+    ws.url(controllerURL + "/fen")
+      .get()
+      .flatMap { fenResponse =>
+        fenResponse.status match {
+          case 200 => {
+            ws.url(legalityURL + "/moves")
+              .withBody(s"{\"fen\": \"${fenResponse.body}\"}")
+              .get()
+              .map { legalityResponse =>
+                legalityResponse.status match {
+                  case 200 => {
+                    Ok(legalityResponse.body)
+                  }
+                  case _ => BadRequest(legalityResponse.body)
+                }
+              }
+          }
+          case _ => Future.successful(BadRequest(fenResponse.body))
+        }
+      }
+  }
+
+  def getPosition = Action.async { implicit request: Request[AnyContent] =>
+    ws.url(controllerURL + "/fen")
+      .get()
+      .map { fenResponse =>
+        fenResponse.status match {
+          case 200 => {
+            val matrixMap = FenParser.mapFromFen(fenResponse.body)
+            val state = FenParser.stateFromFen(fenResponse.body)
+            val body = Json.toJson(matrixMap.map({ case (tile, piece) => (tile.toString, piece.toHtmlString) }))
+            Ok(body)
+          }
+          case _ => BadRequest(fenResponse.body)
+        }
+      }
+  }
+
 }

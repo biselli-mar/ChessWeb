@@ -53,6 +53,8 @@ enum Piece(color: PieceColor, ptype: PieceType, name: String):
   def getType: PieceType = ptype
 
   override def toString: String = name
+  def toHtmlString: String = this.color.toFenChar + this.toFenChar.toLowerCase()
+
   def toFenChar: String = this match
     case W_KING => "K"
     case W_QUEEN => "Q"
