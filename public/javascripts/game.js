@@ -34,6 +34,66 @@ function getTileTransformValues(tile, pieceWidth) {
     }
 }
 
+//=============== Event Listeners ==================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Add pieces to board
+    setPosition();
+});
+
+function pieceMousedownHandler(event) {
+    $('.hint').remove();
+
+    const piece = event.target;
+    piece.classList.forEach((className) => {
+        if (className.startsWith('square-')) {
+            const tile = fileChars[parseInt(className[7]) - 1] + className[8];
+            const moves = legalMoves[tile];
+            if (moves === undefined) return;
+            for (const move of moves) {
+                chessBoard.append(hintDiv(move, tile));
+            }
+            return;
+        }
+    });
+}
+
+function pieceDragstartHandler(event) {
+    const piece = event.target;
+    piece.classList.add('visually-hidden');
+
+    const pieceImageSrc = window.getComputedStyle(piece).backgroundImage;
+    const pieceWidth = piece.offsetWidth;
+
+    const dragImage = document.createElement('img');
+    dragImage.src = pieceImageSrc.substring(5, pieceImageSrc.length - 2); // remove `url("` and `")`
+    dragImage.width = pieceWidth;
+
+    event.dataTransfer.setDragImage(dragImage, pieceWidth, pieceWidth);
+    event.dataTransfer.setData('text/plain', piece.id); // Send the piece id
+}
+
+function addHintEventListeners(hint, srcTile, destTile) {
+    hint.addEventListener('click', () => {
+        postMove(srcTile, destTile, true);
+    });
+
+    hint.addEventListener('dragover', (event) => {
+        hint.classList.add('hint-drop');
+        event.preventDefault();
+    });
+
+    hint.addEventListener('dragleave', (event) => {
+        hint.classList.remove('hint-drop');
+        event.preventDefault();
+    });
+
+    hint.addEventListener('drop', (event) => {
+        event.preventDefault();
+        postMove(srcTile, destTile);
+    });
+}
+
 //=============== DOM ==================
 
 function hintDiv(destTile, srcTile) {
@@ -220,64 +280,4 @@ function getLegalMoves(successFunc) {
         }
     });
 
-}
-
-//=============== Event Listeners ==================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Add pieces to board
-    setPosition();
-});
-
-function pieceMousedownHandler(event) {
-    $('.hint').remove();
-
-    const piece = event.target;
-    piece.classList.forEach((className) => {
-        if (className.startsWith('square-')) {
-            const tile = fileChars[parseInt(className[7]) - 1] + className[8];
-            const moves = legalMoves[tile];
-            if (moves === undefined) return;
-            for (const move of moves) {
-                chessBoard.append(hintDiv(move, tile));
-            }
-            return;
-        }
-    });
-}
-
-function pieceDragstartHandler(event) {
-    const piece = event.target;
-    piece.classList.add('visually-hidden');
-
-    const pieceImageSrc = window.getComputedStyle(piece).backgroundImage;
-    const pieceWidth = piece.offsetWidth;
-
-    const dragImage = document.createElement('img');
-    dragImage.src = pieceImageSrc.substring(5, pieceImageSrc.length - 2); // remove `url("` and `")`
-    dragImage.width = pieceWidth;
-
-    event.dataTransfer.setDragImage(dragImage, pieceWidth, pieceWidth);
-    event.dataTransfer.setData('text/plain', piece.id); // Send the piece id
-}
-
-function addHintEventListeners(hint, srcTile, destTile) {
-    hint.addEventListener('click', () => {
-        postMove(srcTile, destTile, true);
-    });
-
-    hint.addEventListener('dragover', (event) => {
-        hint.classList.add('hint-drop');
-        event.preventDefault();
-    });
-
-    hint.addEventListener('dragleave', (event) => {
-        hint.classList.remove('hint-drop');
-        event.preventDefault();
-    });
-
-    hint.addEventListener('drop', (event) => {
-        event.preventDefault();
-        postMove(srcTile, destTile);
-    });
 }
