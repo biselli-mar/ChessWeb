@@ -128,8 +128,10 @@
               @rankSvg(0.75, num * 12.5 + 3.5, intToRank(num), fileBrightnessStr(num + 1))
             }
           </svg>
-          <!--Highligh Square-->
+          <!--Highligh Squares-->
           <div class="highlight visually-hidden" id="select-highlight"></div>
+          <div class="highlight visually-hidden" id="move-highlight-from"></div>
+          <div class="highlight visually-hidden" id="move-highlight-to"></div>
           @*@for(col <- 0 until 8) {
             @for(row <- 0 until 8) {
               @if(maybePiece(row, col).isDefined) {
