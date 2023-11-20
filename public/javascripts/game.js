@@ -185,12 +185,13 @@ function processMove(from, to, animate) {
     let fromPiece = position[from];
     selectHighlight.addClass('visually-hidden');
     removeSquareClass(selectHighlight);
-    const fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
+    let fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
     getPosition((newPosition) => {
         if (position[from] !== newPosition[to]) { // promotion
             fromPieceDiv.removeClass(position[from]);
             fromPieceDiv.addClass(newPosition[to]);
             fromPiece = newPosition[to];
+            fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
         }
         if (animate) {
             const pieceWidth = fromPieceDiv.width();
@@ -225,7 +226,7 @@ function processMove(from, to, animate) {
         else{
             playMoveSound();
         }     
-        $('.square-' + getColRow(to)).remove();
+        $('.piece.square-' + getColRow(to)).remove();
         const diff = getPositionDiff(newPosition);
         for (const [tile, piece] of Object.entries(diff)) {
             if (tile !== from && piece === undefined) {
