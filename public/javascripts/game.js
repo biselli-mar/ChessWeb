@@ -9,6 +9,7 @@ const moveForm = $('#move-form');
 const selectHighlight = $('#select-highlight');
 const moveHighlightFrom = $('#move-highlight-from');
 const moveHighlightTo = $('#move-highlight-to');
+const moveSound = $('#moveSound')[0];
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
@@ -35,6 +36,10 @@ function getTileTransformValues(tile, pieceWidth) {
         }
     
     }
+}
+
+function playMoveSound() {
+    moveSound.play();
 }
 
 function removeSquareClass(div) {
@@ -170,7 +175,7 @@ function fillBoard(position) {
 
 function processMove(from, to, animate) {
     $('.hint').remove();
-
+    playMoveSound();
     const colRowFrom = getColRow(from);
     const colRowTo = getColRow(to);
     let fromPiece = position[from];
