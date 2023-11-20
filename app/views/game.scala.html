@@ -86,6 +86,7 @@
 }
 
 @nav("HTWG Chess", stylesheets = List("game"), scripts = List("game")) {
+  <audio id="moveSound" src="@routes.Assets.versioned("sounds/move.mp3")"></audio>
   <div class="game-container" id="game">
     <div class="chess-layout">
       <div class="chess-controls" id="info-ctrl">

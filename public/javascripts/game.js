@@ -6,6 +6,7 @@
 
 const chessBoard = $('#chessboard');
 const moveForm = $('#move-form');
+const moveSound = $('#moveSound')[0];
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
@@ -35,6 +36,10 @@ function getTileTransformValues(tile, pieceWidth) {
 }
 
 //=============== DOM ==================
+function playMoveSound() {
+    moveSound.play();
+}
+
 
 function hintDiv(destTile, srcTile) {
     const hint = document.createElement('div');
@@ -93,6 +98,7 @@ function fillBoard(position) {
 
 function processMove(from, to, animate) {
     $('.hint').remove();
+    playMoveSound();
 
     const colRowFrom = getColRow(from);
     const colRowTo = getColRow(to);
