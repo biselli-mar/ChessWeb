@@ -10,7 +10,9 @@ const selectHighlight = $('#select-highlight');
 const moveHighlightFrom = $('#move-highlight-from');
 const moveHighlightTo = $('#move-highlight-to');
 const moveSound = $('#moveSound')[0];
+moveSound.volume = 0.1;
 const captureSound = $('#captureSound')[0];
+captureSound.volume = 0.1;
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
@@ -39,19 +41,12 @@ function getTileTransformValues(tile, pieceWidth) {
     }
 }
 
-function playMoveSound() {
-    moveSound.play();
-}
-
 function removeSquareClass(div) {
     div[0].classList.forEach((className) => {
         if (className.startsWith('square-')) {
             div.removeClass(className);
         }
     });
-}
-function playCaptureSound() {
-    captureSound.play();
 }
 
 //=============== Event Listeners ==================
@@ -220,10 +215,10 @@ function processMove(from, to, animate) {
             });
         }
         if($('.piece.square-' + getColRow(to))[0] !== undefined){
-            playCaptureSound();
+            captureSound.play();
         }
         else{
-            playMoveSound();
+            moveSound.play();
         }     
         $('.piece.square-' + getColRow(to)).remove();
         const diff = getPositionDiff(newPosition);
