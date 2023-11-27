@@ -29,6 +29,8 @@ const moveSound = $('#move-sound')[0];
 moveSound.volume = 0.1;
 const captureSound = $('#capture-sound')[0];
 captureSound.volume = 0.1;
+const checkSound = $('#check-sound')[0];
+checkSound.volume = 0.1;
 
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
@@ -257,6 +259,7 @@ function processMove(from, to, animate) {
         kingDiv.classList.forEach((className) => {
             if (className.startsWith('square-')) {
                 if (newPosition["check"]) {
+                    checkSound.play();
                     removeSquareClass(checkHighlight);
                     checkHighlight.removeClass('visually-hidden');
                     checkHighlight.addClass(className);
