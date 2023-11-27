@@ -172,6 +172,44 @@ class FenParserSpec extends AnyWordSpec:
               )
             )
         }
+        "create a mapping usable for JSON from a FEN" in {
+            mapFromFen("8/8/8/8/8/8/8/8 w - - 0 1") shouldBe Map.empty
+            mapFromFen("8/8/8/8/8/8/8/8 b KQkq E2 5 13") shouldBe Map.empty
+            mapFromFen("8/8/8/8/8/8/8/8") shouldBe Map.empty
+
+            mapFromFen("4/1p2/P3/4") should be(
+                Map(
+                    Tile.withRowCol(1, 1, 4) -> B_PAWN,
+                    Tile.withRowCol(2, 0, 4) -> W_PAWN
+                )
+            )
+
+            mapFromFen("/1p/P/") should be(
+                Map(
+                    Tile.withRowCol(1, 1, 4) -> B_PAWN,
+                    Tile.withRowCol(2, 0, 4) -> W_PAWN
+                )
+            )
+
+            mapFromFen("k/1B w KQkq - 0 1") should be(
+              Map(
+                Tile.withRowCol(0, 0, 2) -> B_KING,
+                Tile.withRowCol(1, 1, 2) -> W_BISHOP
+              )
+            )
+            mapFromFen("k1/1B w KQkq - 0 1") should be(
+              Map(
+                Tile.withRowCol(0, 0, 2) -> B_KING,
+                Tile.withRowCol(1, 1, 2) -> W_BISHOP
+              )
+            )
+            mapFromFen("1k/B w KQkq - 0 1") should be(
+              Map(
+                Tile.withRowCol(0, 1, 2) -> B_KING,
+                Tile.withRowCol(1, 0, 2) -> W_BISHOP
+              )
+            )
+        }
         "create a FEN representation of a given Matrix without the state" in {
             new Matrix[Option[Piece]](8, None).toFen shouldBe "8/8/8/8/8/8/8/8"
             fenFromMatrix(new Matrix[Option[Piece]](8, None)) shouldBe (new Matrix[Option[Piece]](8, None)).toFen

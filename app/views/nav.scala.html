@@ -1,0 +1,44 @@
+@import models.data._
+
+@(title: String, stylesheets: List[String] = List(), scripts: List[String] = List())(content: Html)
+
+@navPills() = {
+  @for(item <- NavItem.items) {
+    <li class="nav-item ps-3 ps-sm-1 pe-1 ps-lg-2 pe-lg-0">
+      <a class="nav-link border-bottom rounded-0 w-auto" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="@item.name" data-bs-original-title="@item.name" href="@item.destUrl">
+        <i class="fs-4 bi pe-none @item.iconClass" aria-label="@item.name"></i>
+        <span class="fs-5 align-text-bottom nav-item-description">@item.name</span>
+      </a>
+    </li>
+  }
+}
+
+
+@main(title, stylesheets.appended("nav"), scripts.appended("nav")) {
+  <main>
+    <nav class="navbar navbar-expand-sm flex-shrink-0" aria-label="navbar">
+      <div class="container-fluid">
+        <a class="navbar-brand" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home" href="/">
+          <img class="pe-none ms-2 ms-lg-0" src="@routes.Assets.versioned("images/logo.png")">
+          <div class="navbar-brand-icon"></div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-pills" aria-controls="nav-pills" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="navbar-collapse collapse me-auto me-lg-0" id="nav-pills">
+          <ul class="navbar-nav me-auto me-lg-0 w-100">
+            @navPills()
+          </ul>
+          <div class="d-flex flex-row" id="color-mode-selector">
+            <i class="bi bi-moon-stars ps-2 pe-1" id="color-mode-icon"></i>
+            <div class="form-check form-switch">
+              <input class="form-check-input color-switch" type="checkbox" role="switch" id="color-mode-switch">
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    @content
+  </main>
+}

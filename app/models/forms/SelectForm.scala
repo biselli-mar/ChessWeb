@@ -1,3 +1,3 @@
-package models
+package models.forms
 
 case class SelectForm(tile: Option[String])

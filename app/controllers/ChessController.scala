@@ -11,7 +11,8 @@
 
 package controllers
 
-import models._
+import models.data._
+import models.forms._
 
 import de.htwg.se.chess.util.data._
 import de.htwg.se.chess.util.data.ChessBoard._
@@ -136,7 +137,11 @@ with play.api.i18n.I18nSupport {
             .get()
             .map { response =>
               response.status match {
-                case 200 => Ok(views.html.game(FenParser.matrixFromFen(response.body), FenParser.stateFromFen(response.body), PieceColor.White, List(),
+                case 200 => Ok(views.html.game(
+                  FenParser.matrixFromFen(response.body),
+                  FenParser.stateFromFen(response.body),
+                  PieceColor.White,
+                  List(),
                   moveForm, selectForm, fenForm))
                 case _ => BadRequest(response.body)
               }
@@ -187,22 +192,45 @@ with play.api.i18n.I18nSupport {
     val wsReq = ws.url(controllerURL + "/states")
         .addQueryStringParameters("query" -> "selected")
     if (selectData.tile.isDefined) {
-      wsReq
-        .addQueryStringParameters("tile" -> s"\"${selectData.tile.get}\"")
-        .put("")
-        .map { response =>
-          response.status match {
-            case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
-          }
+      ws.url(controllerURL + "/fen")
+        .get()
+        .flatMap { fenResponse =>
+      fenResponse.status match {
+      case 200 => {
+        ws.url(legalityURL + "/moves")
+              .addQueryStringParameters("tile" -> s"\"${selectData.tile.get}\"")
+              .withBody(s"{\"fen\": \"${fenResponse.body}\"}")
+              .get()
+              .flatMap { legalityResponse =>
+                legalityResponse.status match {
+                  case 200 => {
+                val legalMovesJsValue = (Json.parse(legalityResponse.body) \ (selectData.tile.get)).get
+                val legalMoves = legalMovesJsValue.as[List[String]]
+                wsReq
+                  .addQueryStringParameters("tile" -> s"\"${selectData.tile.get}\"")
+                  .put("")
+                  .map { response =>
+                    response.status match {
+                      case 200 => Ok(legalMovesJsValue)
+                      case _ => BadRequest(response.body + " \n in selecting")
+                    }
+                  }
+                }
+                case _ => Future.successful(BadRequest(legalityResponse.body + " \n at legality"))
+              }
+            }
+      }
+      case _ => 
+          Future.successful(BadRequest(fenResponse.body + " \n at fenGet"))
         }
+      }
     } else {
       wsReq
         .put("")
         .map { response =>
           response.status match {
             case 200 => SeeOther("/play")
-            case _ => BadRequest(response.body)
+            case _ => BadRequest(response.body + " \n no tile defined")
           }
         }
       }
@@ -219,6 +247,49 @@ with play.api.i18n.I18nSupport {
 
   def about() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.about())
+  }
+
+  def notFinished() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.notFinished())
+  }
+
+  def getLegalMoves = Action.async { implicit request: Request[AnyContent] =>
+    ws.url(controllerURL + "/fen")
+      .get()
+      .flatMap { fenResponse =>
+        fenResponse.status match {
+          case 200 => {
+            ws.url(legalityURL + "/moves")
+              .withBody(s"{\"fen\": \"${fenResponse.body}\"}")
+              .get()
+              .map { legalityResponse =>
+                legalityResponse.status match {
+                  case 200 => {
+                    Ok(legalityResponse.body)
+                  }
+                  case _ => BadRequest(legalityResponse.body)
+                }
+              }
+          }
+          case _ => Future.successful(BadRequest(fenResponse.body))
+        }
+      }
+  }
+
+  def getPosition = Action.async { implicit request: Request[AnyContent] =>
+    ws.url(controllerURL + "/fen")
+      .get()
+      .map { fenResponse =>
+        fenResponse.status match {
+          case 200 => {
+            val matrixMap = FenParser.mapFromFen(fenResponse.body)
+            val state = FenParser.stateFromFen(fenResponse.body)
+            val body = Json.toJson(matrixMap.map({ case (tile, piece) => (tile.toString, piece.toHtmlString) }))
+            Ok(body)
+          }
+          case _ => BadRequest(fenResponse.body)
+        }
+      }
   }
 
 }

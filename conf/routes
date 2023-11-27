@@ -9,8 +9,14 @@ GET     /play                       controllers.ChessController.game
 
 GET     /about                      controllers.ChessController.about()
 
+GET     /profile                    controllers.ChessController.notFinished()
+
 
 # Executing commands
+
+GET      /api/moves                  controllers.ChessController.getLegalMoves
+
+GET      /api/position               controllers.ChessController.getPosition
 
 POST     /play/move                  controllers.ChessController.move
 

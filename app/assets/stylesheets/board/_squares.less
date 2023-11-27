@@ -1,24 +1,51 @@
-
-.hint {
-    background-clip: content-box;
-    box-sizing: border-box;
-    border-radius: 50%;
+.square {
     height: 12.5%;
     width: 12.5%;
     left: 0;
     top: 0;
     position: absolute;
+}
+
+.hint {
+    .square;
+    background-clip: content-box;
+    box-sizing: border-box;
+    border-radius: 50%;
     z-index: 1;
+    cursor: pointer;
 
     &-move {
         background-color: rgba(0, 0, 0, 0.2);
         padding: 4.2%;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
     }
 
     &-capture {
-        border: 5px solid rgba(0, 0, 0, 0.1);
+        border: 5px solid rgba(0, 0, 0, 0.2);
+        border-width: 1vh;
+
+        &:hover {
+            border: 5px solid rgba(0, 0, 0, 0.5);
+            border-width: 1vh;
+        }
+    }
+
+    &-drop {
+        background-color: rgba(0, 0, 0, 0);
+        border: 5px solid rgba(0, 0, 0, 0.5);
+        border-radius: 0%;
+        padding: 0%;
         border-width: 1vh;
     }
+}
+
+.highlight {
+    .square;
+    background-color: rgb(255,255,51);
+    opacity: 0.5;
 }
 
 .square-11 {
