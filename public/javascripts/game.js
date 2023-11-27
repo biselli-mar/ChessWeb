@@ -9,6 +9,10 @@ const moveForm = $('#move-form');
 const selectHighlight = $('#select-highlight');
 const moveHighlightFrom = $('#move-highlight-from');
 const moveHighlightTo = $('#move-highlight-to');
+const checkHighlight = $('#check-highlight');
+const playerTurn = $('#state-color-display');
+const halfMoves = $('#state-half-moves-display');
+const fullMoves = $('#state-full-moves-display');
 const moveSound = $('#moveSound')[0];
 moveSound.volume = 0.1;
 const captureSound = $('#captureSound')[0];
@@ -146,7 +150,7 @@ function pieceDiv(piece, tile) {
 function setPosition() {
     getPosition((data) => {
         position = data;
-        fillBoard(position);
+        fillBoard(position["pieces"]);
         getLegalMoves((data) => {
             legalMoves = data;
             chessBoard.removeClass('visually-hidden');
@@ -177,15 +181,15 @@ function processMove(from, to, animate) {
     
     const colRowFrom = getColRow(from);
     const colRowTo = getColRow(to);
-    let fromPiece = position[from];
+    let fromPiece = position["pieces"][from];
     selectHighlight.addClass('visually-hidden');
     removeSquareClass(selectHighlight);
     let fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
     getPosition((newPosition) => {
-        if (position[from] !== newPosition[to]) { // promotion
-            fromPieceDiv.removeClass(position[from]);
-            fromPieceDiv.addClass(newPosition[to]);
-            fromPiece = newPosition[to];
+        if (position["pieces"][from] !== newPosition["pieces"][to]) { // promotion
+            fromPieceDiv.removeClass(position["pieces"][from]);
+            fromPieceDiv.addClass(newPosition["pieces"][to]);
+            fromPiece = newPosition["pieces"][to];
         }
         if (animate) {
             const pieceWidth = fromPieceDiv.width();
@@ -234,6 +238,25 @@ function processMove(from, to, animate) {
             }
         }
 
+        const turnColor = newPosition["state"]["color"];
+        const kingDiv = $('.piece.'+turnColor+'k')[0];
+
+        kingDiv.classList.forEach((className) => {
+            if (className.startsWith('square-')) {
+                if (newPosition["check"]) {
+                    removeSquareClass(checkHighlight);
+                    checkHighlight.removeClass('visually-hidden');
+                    checkHighlight.addClass(className);
+                } else {
+                    checkHighlight.addClass('visually-hidden');
+                }
+            }
+        });
+        
+        playerTurn.text(turnColor == 'w' ? 'White' : 'Black');
+        halfMoves.text(newPosition["state"]["halfMoves"]);
+        fullMoves.text(newPosition["state"]["fullMoves"]);
+
         position = newPosition;
         legalMoves = {};
         getLegalMoves((data) => {
@@ -255,14 +278,14 @@ function processMove(from, to, animate) {
  */
 function getPositionDiff(newPosition) {
     const diff = {};
-    for (const [tile, piece] of Object.entries(newPosition)) {
-        if (position[tile] !== piece) {
+    for (const [tile, piece] of Object.entries(newPosition["pieces"])) {
+        if (position["pieces"][tile] !== piece) {
             diff[tile] = piece;
         }
     }
-    for (const [tile, piece] of Object.entries(position)) {
-        if (newPosition[tile] !== piece) {
-            diff[tile] = newPosition[tile];
+    for (const [tile, piece] of Object.entries(position["pieces"])) {
+        if (newPosition["pieces"][tile] !== piece) {
+            diff[tile] = newPosition["pieces"][tile];
         }
     }
     return diff;

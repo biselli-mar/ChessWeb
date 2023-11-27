@@ -94,9 +94,9 @@
         <div class="chess-info">
           <h5>Game Info</h5>
           <small>
-            Current Player: @state.color<br>
-            Half-Moves: @state.halfMoves<br>
-            Full-Moves: @state.fullMoves
+            Current Player: <span id="state-color-display">@state.color</span><br>
+            Half-Moves: <span id="state-half-moves-display">@state.halfMoves</span><br>
+            Full-Moves: <span id="state-full-moves-display">@state.fullMoves</span>
           </small>
         </div>
         <form class="btn-bar" id="ctrl-buttons-vertical" method="post">
@@ -134,6 +134,7 @@
           <div class="highlight visually-hidden" id="select-highlight"></div>
           <div class="highlight visually-hidden" id="move-highlight-from"></div>
           <div class="highlight visually-hidden" id="move-highlight-to"></div>
+          <div class="check visually-hidden" id="check-highlight"></div>
           @*@for(col <- 0 until 8) {
             @for(row <- 0 until 8) {
               @if(maybePiece(row, col).isDefined) {
