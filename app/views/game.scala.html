@@ -86,8 +86,24 @@
 }
 
 @nav("HTWG Chess", stylesheets = List("game"), scripts = List("game")) {
-  <audio id="moveSound" src="@routes.Assets.versioned("sounds/move.mp3")"></audio>
-  <audio id="captureSound" src="@routes.Assets.versioned("sounds/capture.mp3")"></audio>
+  <audio id="move-sound" src="@routes.Assets.versioned("sounds/move.mp3")"></audio>
+  <audio id="capture-sound" src="@routes.Assets.versioned("sounds/capture.mp3")"></audio>
+  <div class="modal fade" id="game-over-modal" tabindex="-1" role="dialog" aria-labelledby="game-over-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="game-over-modal-title"></h5>
+          <button id="game-over-modal-button" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body d-flex flex-row p-0 m-3">
+          <div id="game-over-modal-icon"></div>
+          <span class="ps-3" id="game-over-modal-text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="game-container" id="game">
     <div class="chess-layout">
       <div class="chess-controls" id="info-ctrl">

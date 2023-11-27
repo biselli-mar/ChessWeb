@@ -278,10 +278,11 @@ with play.api.i18n.I18nSupport {
   }
 
   def getPosition = Action.async { implicit request: Request[AnyContent] =>
-    val futureResponse: Future[Tuple2[WSResponse, WSResponse]] = for {
+    val futureResponse: Future[Tuple3[WSResponse, WSResponse, WSResponse]] = for {
       fenResponse   <- ws.url(controllerURL + "/fen").get()
       stateResponse <- ws.url(controllerURL + "/states?query=check").get()
-    } yield Tuple2(fenResponse, stateResponse)
+      gameStateResponse    <- ws.url(controllerURL + "/states?query=game-state").get()
+    } yield Tuple3(fenResponse, stateResponse, gameStateResponse)
 
     futureResponse.recover {
       case e: Exception =>
@@ -290,13 +291,15 @@ with play.api.i18n.I18nSupport {
     }
 
     futureResponse.collect({
-      case (fenResponse, stateResponse) if fenResponse.status == 200 && stateResponse.status == 200 => {
+      case (fenResponse, stateResponse, gameStateResponse)
+      if fenResponse.status == 200 && stateResponse.status == 200 && gameStateResponse.status == 200 => {
         val matrixMap = FenParser.mapFromFen(fenResponse.body)
         val state = FenParser.stateFromFen(fenResponse.body)
         val body = Json.obj(
           "pieces" -> Json.toJson(matrixMap.map({ case (tile, piece) => (tile.toString, piece.toHtmlString) })),
           "state" -> Json.toJson(state),
-          "check" -> Json.toJson(stateResponse.body.toBoolean)
+          "check" -> Json.toJson(stateResponse.body.toBoolean),
+          "game-state" -> Json.toJson(gameStateResponse.body)
         )
         Ok(body)
       }

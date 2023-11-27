@@ -6,17 +6,30 @@
 
 const chessBoard = $('#chessboard');
 const moveForm = $('#move-form');
+
 const selectHighlight = $('#select-highlight');
 const moveHighlightFrom = $('#move-highlight-from');
 const moveHighlightTo = $('#move-highlight-to');
 const checkHighlight = $('#check-highlight');
+
 const playerTurn = $('#state-color-display');
 const halfMoves = $('#state-half-moves-display');
 const fullMoves = $('#state-full-moves-display');
-const moveSound = $('#moveSound')[0];
+
+const gameOverModal = $('#game-over-modal');
+const gameOverModalIcon = $('#game-over-modal-icon');
+const gameOverModalText = $('#game-over-modal-text');
+const gameOverModalTitle = $('#game-over-modal-title');
+const gameOverModalButton = $('#game-over-modal-button');
+gameOverModalButton.on('click', () => {
+    gameOverModal.modal('toggle');
+});
+
+const moveSound = $('#move-sound')[0];
 moveSound.volume = 0.1;
-const captureSound = $('#captureSound')[0];
+const captureSound = $('#capture-sound')[0];
 captureSound.volume = 0.1;
+
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
@@ -252,6 +265,19 @@ function processMove(from, to, animate) {
                 }
             }
         });
+
+        if (newPosition["game-state"] == 'CHECKMATE') {
+            gameOverModalTitle.text('Checkmate');
+            const whiteWon = turnColor == 'b';
+            gameOverModalIcon.addClass(whiteWon ? 'wk' : 'bk');
+            gameOverModalText.text((whiteWon ? 'White' : 'Black') + ' wins!');
+            gameOverModal.modal('toggle');
+        } else if (newPosition["game-state"] == 'DRAW') {
+            gameOverModalTitle.text('Draw');
+            gameOverModalText.text('The game ended in a draw');
+            gameOverModal.modal('toggle');
+        }
+
         
         playerTurn.text(turnColor == 'w' ? 'White' : 'Black');
         halfMoves.text(newPosition["state"]["halfMoves"]);
@@ -259,8 +285,8 @@ function processMove(from, to, animate) {
 
         position = newPosition;
         legalMoves = {};
-        getLegalMoves((data) => {
-            legalMoves = data;
+        getLegalMoves((newLegalMoves) => {
+            legalMoves = newLegalMoves;
         });
 
         removeSquareClass(moveHighlightFrom);

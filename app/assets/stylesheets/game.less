@@ -172,3 +172,35 @@ chessboard {
     align-items: center;
   }
 }
+
+.close {
+  float: right;
+  font-size: x-large;
+  opacity: .5;
+
+  &:hover {
+    text-decoration: none;
+    opacity: 1;
+  }
+
+  &:not(:disabled):not(.disabled) {
+    cursor: pointer;
+  }
+}
+
+button.close {
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.modal-body {
+  align-items: center;
+}
+
+#game-over-modal-icon {
+  height: 45px;
+  width: 45px;
+}
