@@ -13,6 +13,7 @@ package controllers
 
 import models.data._
 import models.forms._
+import models.json.Parsers._
 
 import de.htwg.se.chess.util.data._
 import de.htwg.se.chess.util.data.ChessBoard._
@@ -277,19 +278,29 @@ with play.api.i18n.I18nSupport {
   }
 
   def getPosition = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/fen")
-      .get()
-      .map { fenResponse =>
-        fenResponse.status match {
-          case 200 => {
-            val matrixMap = FenParser.mapFromFen(fenResponse.body)
-            val state = FenParser.stateFromFen(fenResponse.body)
-            val body = Json.toJson(matrixMap.map({ case (tile, piece) => (tile.toString, piece.toHtmlString) }))
-            Ok(body)
-          }
-          case _ => BadRequest(fenResponse.body)
-        }
+    val futureResponse: Future[Tuple2[WSResponse, WSResponse]] = for {
+      fenResponse   <- ws.url(controllerURL + "/fen").get()
+      stateResponse <- ws.url(controllerURL + "/states?query=check").get()
+    } yield Tuple2(fenResponse, stateResponse)
+
+    futureResponse.recover {
+      case e: Exception =>
+        val exceptionData = Map("error" -> Seq(e.getMessage))
+        BadRequest(exceptionData)
+    }
+
+    futureResponse.collect({
+      case (fenResponse, stateResponse) if fenResponse.status == 200 && stateResponse.status == 200 => {
+        val matrixMap = FenParser.mapFromFen(fenResponse.body)
+        val state = FenParser.stateFromFen(fenResponse.body)
+        val body = Json.obj(
+          "pieces" -> Json.toJson(matrixMap.map({ case (tile, piece) => (tile.toString, piece.toHtmlString) })),
+          "state" -> Json.toJson(state),
+          "check" -> Json.toJson(stateResponse.body.toBoolean)
+        )
+        Ok(body)
       }
+    })
   }
 
 }
