@@ -18,6 +18,16 @@ GET      /api/moves                  controllers.ChessController.getLegalMoves
 
 GET      /api/position               controllers.ChessController.getPosition
 
+GET      /session                    controllers.SessionController.newSessions
+
+POST     /session                    controllers.SessionController.createSession
+
+GET      /session/join               controllers.SessionController.findSession
+
+POST     /session/join              controllers.SessionController.joinSession(sessionId: String)
+
+DELETE   /session                    controllers.SessionController.deleteSession(sessionId: String)
+
 POST     /play/move                  controllers.ChessController.move
 
 POST     /play/select                controllers.ChessController.select
