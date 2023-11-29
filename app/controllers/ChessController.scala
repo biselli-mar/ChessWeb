@@ -17,13 +17,13 @@ import models.json.Parsers._
 
 import de.htwg.se.chess.util.data._
 import de.htwg.se.chess.util.data.ChessBoard._
-import de.htwg.wa.http.HttpMethod
-import de.htwg.wa.http.HttpMethod._
 
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 
+import akka.http.scaladsl.model.HttpMethod
+import akka.http.scaladsl.model.HttpMethods._
 import javax.inject._
 import com.google.inject.Guice
 import play.api._
@@ -70,22 +70,22 @@ with play.api.i18n.I18nSupport {
   def boardText(response: WSResponse) = toBoard(FenParser.matrixFromFen(response.body))
 
   def asyncAction(
-    resourcePath: String,
-    method: HttpMethod,
-    success: WSResponse => Result,
-    query: (String, String)*): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
-      ws.url(controllerURL + resourcePath)
-        .withMethod(method.toString())
-        .addHttpHeaders("Accept" -> "text/plain")
-        .addQueryStringParameters(query: _*)
-        .execute()
-        .map( response =>
-            response.status match {
-              case 200 => success(response)
-              case _ => BadRequest(response.body)
-            }
-        )
-    }
+        resourcePath: String,
+        method: HttpMethod,
+        success: WSResponse => Result,
+        query: (String, String)*): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+          ws.url(controllerURL + resourcePath)
+            .withMethod(method.toString())
+            .addHttpHeaders("Accept" -> "text/plain")
+            .addQueryStringParameters(query: _*)
+            .execute()
+            .map( response =>
+                response.status match {
+                  case 200 => success(response)
+                  case _ => BadRequest(response.body)
+                }
+            )
+        }
 
   def backToPlay(response: WSResponse) = SeeOther("/play")
 

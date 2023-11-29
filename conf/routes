@@ -7,6 +7,8 @@ GET     /                           controllers.ChessController.index()
 
 GET     /play                       controllers.ChessController.game
 
+GET     /play/socket                controllers.SessionController.socket
+
 GET     /about                      controllers.ChessController.about()
 
 GET     /profile                    controllers.ChessController.notFinished()
@@ -24,7 +26,7 @@ POST     /session                    controllers.SessionController.createSession
 
 GET      /session/join               controllers.SessionController.findSession
 
-POST     /session/join              controllers.SessionController.joinSession(sessionId: String)
+POST     /session/join               controllers.SessionController.joinSession(sessionId: String)
 
 DELETE   /session                    controllers.SessionController.deleteSession(sessionId: String)
 
