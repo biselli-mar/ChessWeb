@@ -23,8 +23,8 @@ lazy val root = project
             ws,
         ),
         libraryDependencies ++= commonDependency,
-        includeFilter in (Assets, LessKeys.less) := "*.less",
-        excludeFilter in (Assets, LessKeys.less) := "_*.less",
+        Assets / LessKeys.less / includeFilter := "*.less",
+        Assets / LessKeys.less / excludeFilter := "_*.less",
     )
     .dependsOn(utils)
     .enablePlugins(PlayScala, SbtWeb)
