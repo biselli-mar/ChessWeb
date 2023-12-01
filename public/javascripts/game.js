@@ -5,7 +5,6 @@
 //=============== Constants ==================
 
 const chessBoard = $('#chessboard');
-const moveForm = $('#move-form');
 
 const selectHighlight = $('#select-highlight');
 const moveHighlightFrom = $('#move-highlight-from');
@@ -36,6 +35,39 @@ const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
 const animationDuration = 350;  // milliseconds
+let animateState = false;       // whether or not to animate moves
+let waitingTurn = true;        // whether or not we are waiting for opponent's turn
+
+//=============== Websocket ==================
+
+let socket = new WebSocket("ws://localhost:9000/play/socket/" + getCookie('chess-session-id'));
+socket.onmessage = function(event) {
+    if (event.data === 'Wait for opponent') {
+        setInterval(() => socket.send("Keep alive"), 20000);
+    } else if (event.data === 'Keep alive') {
+        return;
+    } else {
+        const data = JSON.parse(event.data);
+        if (data["error"] !== undefined) {
+            if (data["move"] !== undefined) {
+                processMove(data);
+            } else {
+                position = data;
+                fillBoard(data["pieces"], data["player-color"]);
+                if (data["player-color"] === data["state"]["color"]) {
+                    waitingTurn = false;
+                    legalMoves = data["legal-moves"];
+                } else {
+                    waitingTurn = true;
+                    legalMoves = {};
+                }
+            }
+
+        } else {
+            alert(data["error"]);
+        }
+    }
+}
 
 //=============== Helper Functions ==================
 
@@ -76,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function pieceMousedownHandler(event) {
+    if (waitingTurn) return;
     $('.hint').remove();
 
     const piece = event.target;
@@ -114,7 +147,12 @@ function pieceDragstartHandler(event) {
 
 function addHintEventListeners(hint, srcTile, destTile) {
     hint.addEventListener('click', () => {
-        postMove(srcTile, destTile, true);
+        animateState = true;
+        socket.send(JSON.stringify({
+            from: srcTile,
+            to: destTile,
+            playerId: getCookie('chess-player-id')
+        }));
     });
 
     hint.addEventListener('dragover', (event) => {
@@ -162,18 +200,10 @@ function pieceDiv(piece, tile) {
     return pieceDiv;
 }
 
-function setPosition() {
-    getPosition((data) => {
-        position = data;
-        fillBoard(position["pieces"]);
-        getLegalMoves((data) => {
-            legalMoves = data;
-            chessBoard.removeClass('visually-hidden');
-        });
-    });
-}
-
-function fillBoard(position) {
+function fillBoard(position, playerColor) {
+    if (playerColor === 'b') {
+        chessBoard.addClass('flipped');
+    }
     for (const [tile, piece] of Object.entries(position)) {
         chessBoard.append(pieceDiv(piece, tile));
     }
@@ -191,7 +221,9 @@ function fillBoard(position) {
     });
 }
 
-function processMove(from, to, animate) {
+function processMove(gameData) {
+    const from = gameData["move"]["from"];
+    const to = gameData["move"]["to"];
     $('.hint').remove();
     
     const colRowFrom = getColRow(from);
@@ -200,175 +232,120 @@ function processMove(from, to, animate) {
     selectHighlight.addClass('visually-hidden');
     removeSquareClass(selectHighlight);
     let fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
-    getPosition((newPosition) => {
-        if (position["pieces"][from] !== newPosition["pieces"][to]) { // promotion
-            fromPieceDiv.removeClass(position["pieces"][from]);
-            fromPieceDiv.addClass(newPosition["pieces"][to]);
-            fromPiece = newPosition["pieces"][to];
+    
+    if (position["pieces"][from] !== gameData["pieces"][to]) { // promotion
+        fromPieceDiv.removeClass(position["pieces"][from]);
+        fromPieceDiv.addClass(gameData["pieces"][to]);
+        fromPiece = gameData["pieces"][to];
+    }
+    if (animateState) {
+        const pieceWidth = fromPieceDiv.width();
+        const fromTransform = getTileTransformValues(from, pieceWidth);
+        const toTransform = getTileTransformValues(to, pieceWidth);
+        const toTransformDiff = {
+            x: toTransform['x'] - fromTransform['x'],
+            y: toTransform['y'] - fromTransform['y']
         }
-        if (animate) {
-            const pieceWidth = fromPieceDiv.width();
-            const fromTransform = getTileTransformValues(from, pieceWidth);
-            const toTransform = getTileTransformValues(to, pieceWidth);
-            const toTransformDiff = {
-                x: toTransform['x'] - fromTransform['x'],
-                y: toTransform['y'] - fromTransform['y']
-            }
 
-            fromPieceDiv.animate(
-            {
-                left: '+=' + toTransformDiff['x'],
-                top: '+=' + toTransformDiff['y']
+        fromPieceDiv.animate(
+        {
+            left: '+=' + toTransformDiff['x'],
+            top: '+=' + toTransformDiff['y']
+        },
+        {
+            duration: animationDuration,
+            start: () => {
+                fromPieceDiv.css('z-index', 100);
             },
-            {
-                duration: animationDuration,
-                start: () => {
-                    fromPieceDiv.css('z-index', 100);
-                },
-                done: () => {
-                    fromPieceDiv.addClass('square-' + colRowTo);
-                    fromPieceDiv.removeClass('square-' + colRowFrom);
-                    fromPieceDiv.attr('style', '');
-                    fromPieceDiv.attr('id', fromPiece + '-' + colRowTo);
-                }
-            });
-        }
-        if($('.piece.square-' + getColRow(to))[0] !== undefined){
-            captureSound.play();
-        }
-        else{
-            moveSound.play();
-        }     
-        $('.piece.square-' + getColRow(to)).remove();
-        const diff = getPositionDiff(newPosition);
-        for (const [tile, piece] of Object.entries(diff)) {
-            if (tile !== from && piece === undefined) {
-                $('.square-' + getColRow(tile)).remove('.piece');
-            } else if (tile !== to && piece !== undefined) {
-                chessBoard.append(pieceDiv(piece, tile));
-            } else if (tile === to && !animate) {
-                fromPieceDiv.removeClass('square-' + colRowFrom);
+            done: () => {
                 fromPieceDiv.addClass('square-' + colRowTo);
+                fromPieceDiv.removeClass('square-' + colRowFrom);
+                fromPieceDiv.attr('style', '');
                 fromPieceDiv.attr('id', fromPiece + '-' + colRowTo);
             }
+        });
+    }
+    if($('.piece.square-' + getColRow(to))[0] !== undefined){
+        captureSound.play();
+    }
+    else{
+        moveSound.play();
+    }     
+    $('.piece.square-' + getColRow(to)).remove();
+    const diff = getPositionDiff(gameData["pieces"]);
+    for (const [tile, piece] of Object.entries(diff)) {
+        if (tile !== from && piece === undefined) {
+            $('.square-' + getColRow(tile)).remove('.piece');
+        } else if (tile !== to && piece !== undefined) {
+            chessBoard.append(pieceDiv(piece, tile));
+        } else if (tile === to && !animate) {
+            fromPieceDiv.removeClass('square-' + colRowFrom);
+            fromPieceDiv.addClass('square-' + colRowTo);
+            fromPieceDiv.attr('id', fromPiece + '-' + colRowTo);
         }
+    }
 
-        const turnColor = newPosition["state"]["color"];
-        const kingDiv = $('.piece.'+turnColor+'k')[0];
+    const turnColor = gameData["state"]["color"];
+    const kingDiv = $('.piece.'+turnColor+'k')[0];
 
-        kingDiv.classList.forEach((className) => {
-            if (className.startsWith('square-')) {
-                if (newPosition["check"]) {
-                    checkSound.play();
-                    removeSquareClass(checkHighlight);
-                    checkHighlight.removeClass('visually-hidden');
-                    checkHighlight.addClass(className);
-                } else {
-                    checkHighlight.addClass('visually-hidden');
-                }
+    kingDiv.classList.forEach((className) => {
+        if (className.startsWith('square-')) {
+            if (gameData["check"]) {
+                checkSound.play();
+                removeSquareClass(checkHighlight);
+                checkHighlight.removeClass('visually-hidden');
+                checkHighlight.addClass(className);
+            } else {
+                checkHighlight.addClass('visually-hidden');
             }
-        });
-
-        if (newPosition["game-state"] == 'CHECKMATE') {
-            gameOverModalTitle.text('Checkmate');
-            const whiteWon = turnColor == 'b';
-            gameOverModalIcon.addClass(whiteWon ? 'wk' : 'bk');
-            gameOverModalText.text((whiteWon ? 'White' : 'Black') + ' wins!');
-            gameOverModal.modal('toggle');
-        } else if (newPosition["game-state"] == 'DRAW') {
-            gameOverModalTitle.text('Draw');
-            gameOverModalText.text('The game ended in a draw');
-            gameOverModal.modal('toggle');
         }
-
-        
-        playerTurn.text(turnColor == 'w' ? 'White' : 'Black');
-        halfMoves.text(newPosition["state"]["halfMoves"]);
-        fullMoves.text(newPosition["state"]["fullMoves"]);
-
-        position = newPosition;
-        legalMoves = {};
-        getLegalMoves((newLegalMoves) => {
-            legalMoves = newLegalMoves;
-        });
-
-        removeSquareClass(moveHighlightFrom);
-        moveHighlightFrom.removeClass('visually-hidden');
-        moveHighlightFrom.addClass('square-' + colRowFrom);
-        removeSquareClass(moveHighlightTo);
-        moveHighlightTo.removeClass('visually-hidden');
-        moveHighlightTo.addClass('square-' + colRowTo);
     });
+
+    if (gameData["game-state"] == 'CHECKMATE') {
+        gameOverModalTitle.text('Checkmate');
+        const whiteWon = turnColor == 'b';
+        gameOverModalIcon.addClass(whiteWon ? 'wk' : 'bk');
+        gameOverModalText.text((whiteWon ? 'White' : 'Black') + ' wins!');
+        gameOverModal.modal('toggle');
+    } else if (gameData["game-state"] == 'DRAW') {
+        gameOverModalTitle.text('Draw');
+        gameOverModalText.text('The game ended in a draw');
+        gameOverModal.modal('toggle');
+    }
+
+    
+    playerTurn.text(turnColor == 'w' ? 'White' : 'Black');
+    halfMoves.text(gameData["state"]["halfMoves"]);
+    fullMoves.text(gameData["state"]["fullMoves"]);
+
+    position = gameData;
+    if (animateState) {
+        animateState = false;
+    }
+
+    removeSquareClass(moveHighlightFrom);
+    moveHighlightFrom.removeClass('visually-hidden');
+    moveHighlightFrom.addClass('square-' + colRowFrom);
+    removeSquareClass(moveHighlightTo);
+    moveHighlightTo.removeClass('visually-hidden');
+    moveHighlightTo.addClass('square-' + colRowTo);
 }
 
 /*
  * Returns a map of tiles to pieces that have changed
  * If an entry is undefined, that means the piece has moved or was taken
  */
-function getPositionDiff(newPosition) {
+function getPositionDiff(pieces) {
     const diff = {};
-    for (const [tile, piece] of Object.entries(newPosition["pieces"])) {
+    for (const [tile, piece] of Object.entries(pieces)) {
         if (position["pieces"][tile] !== piece) {
             diff[tile] = piece;
         }
     }
     for (const [tile, piece] of Object.entries(position["pieces"])) {
-        if (newPosition["pieces"][tile] !== piece) {
-            diff[tile] = newPosition["pieces"][tile];
+        if (pieces[tile] !== piece) {
+            diff[tile] = pieces[tile];
         }
     }
     return diff;
-}
-
-//=============== Ajax ==================
-
-function postMove(from, to, animate = false) {
-    const formData = {
-        csrfToken: moveForm.children('input[name="csrfToken"]').val(),
-        from: from,
-        to: to
-    }
-
-    $.ajax({
-        type:'POST',
-        url: '/play/move',
-        data: formData,
-        success: function() {
-            processMove(from, to, animate);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert("Encountered error while moving piece\nError code: " + textStatus + "\n" + errorThrown);
-            return [];
-        }
-    });
-}
-
-function getPosition(successFunc) {
-    $.ajax({
-        type:'GET',
-        url: '/api/position',
-        dataType: 'json',
-        success: function(data) {
-            successFunc(data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error("Encountered error while receiving piece positions\nError code: " + textStatus + "\n" + errorThrown);
-        }
-    });
-
-}
-
-function getLegalMoves(successFunc) {
-    $.ajax({
-        type:'GET',
-        url: '/api/moves',
-        dataType: 'json',
-        success: function(data) {
-            successFunc(data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error("Encountered error while receiving legal moves\nError code: " + textStatus + "\n" + errorThrown);
-        }
-    });
-
 }

@@ -1,3 +1,17 @@
-@nav("New Game") {
-    <h3>Find a game</h3>
+@import de.htwg.se.chess.util.data._
+@import helper._
+@import models.forms._
+@import models.data._
+
+@(joinSessionForm: Form[JoinSessionForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@nav("New Game", scripts = List("cookieHandler", "joinSession")) {
+    <form id="join-session-form">
+      @CSRF.formField
+      <div class="form-group form-floating">
+        <input class="form-control" id="sessionId" type="text" name="sessionId" value="" placeholder="Game-Code">
+        <label for="sessionId">Game-Code</label>
+      </div>
+    </form>
+    <button class="btn btn-primary m-2" id="join-session-btn">Join</button>
 }
