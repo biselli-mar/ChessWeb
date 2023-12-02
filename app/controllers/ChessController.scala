@@ -95,66 +95,8 @@ with play.api.i18n.I18nSupport {
 
   def plainGame() = asyncAction("/fen", GET, (r) => Ok(views.html.plainGame(boardText(r))))
 
-  def game = Action.async { implicit request: Request[AnyContent] =>
-    ws.url(controllerURL + "/states")
-      .addHttpHeaders("Accept" -> "text/plain")
-      .addQueryStringParameters("query" -> "selected")
-      .get()
-      .flatMap { selectedResponse =>
-
-    selectedResponse.status match {
-      case 200 => {
-        if (selectedResponse.body != "null") {
-          ws.url(controllerURL + "/fen")
-            .get()
-            .flatMap { fenResponse =>
-                  
-        fenResponse.status match {
-          case 200 => {
-            ws.url(legalityURL + "/moves")
-              .addQueryStringParameters("tile" -> selectedResponse.body)
-              .withBody(s"{\"fen\": \"${fenResponse.body}\"}")
-              .get()
-              .map { legalityResponse =>
-                legalityResponse.status match {
-                  case 200 => {
-                val legalMoves = (Json.parse(legalityResponse.body) \ (selectedResponse.body.filter(c => c != '"'))).get.as[List[String]]
-                Ok(views.html.game(
-                    FenParser.matrixFromFen(fenResponse.body),
-                    FenParser.stateFromFen(fenResponse.body),
-                    PieceColor.White,
-                    Tile(legalMoves).map(tile => Tuple2(tile.row, tile.col)),
-                    moveForm, selectForm, fenForm))
-                }
-                case _ => BadRequest(legalityResponse.body)
-              }
-            }
-          }
-          case _ => Future.successful(BadRequest(fenResponse.body))
-          }
-        }
-              
-        } else {
-          ws.url(controllerURL + "/fen")
-            .get()
-            .map { response =>
-              response.status match {
-                case 200 => Ok(views.html.game(
-                  FenParser.matrixFromFen(response.body),
-                  FenParser.stateFromFen(response.body),
-                  PieceColor.White,
-                  List(),
-                  moveForm, selectForm, fenForm))
-                case _ => BadRequest(response.body)
-              }
-            }
-        }
-      }
-      case _ => Future.successful(BadRequest(selectedResponse.body))
-    }
-  }
-
-    
+  def game = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.game(PieceColor.White))
   }
 
   def put(tile: String, piece: String) = asyncAction("/cells", PUT, backToPlay, "tile" -> tile, "piece" -> piece)

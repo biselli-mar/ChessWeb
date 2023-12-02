@@ -3,42 +3,7 @@
 @import models.forms._
 @import models.data._
 
-@(chessboard: Matrix[Option[Piece]], 
-  state: ChessState, 
-  playerColor: PieceColor, 
-  legalMoves: List[Tuple2[Int, Int]],
-  moveForm: Form[MoveForm], 
-  selectForm: Form[SelectForm],
-  fenForm: Form[FenForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
-
-@**********************************************
- * Helper functions for rendering the pieces. *
- *********************************************@
-
-
-@maybePiece(row: Int, col: Int) = @{
-  chessboard.cell(row, col)
-}
-
-@piece(row: Int, col: Int) = @{
-  maybePiece(row, col).get
-}
-
-@pieceDiv(row: Int, col: Int, piece: Piece) = {
-  <div
-    id="@{piece.toFenChar + "-" + (col + 1) + (row + 1)}"
-    class="@{"piece " + piece.getColor.toFenChar + piece.toFenChar.toLowerCase() + " square-" + (col + 1) + (8 - row)}"
-    draggable="true"
-  ></div>
-}
-
-@hintDiv(cell: Tuple2[Int, Int]) = {
-  @if(maybePiece(cell._1, cell._2).isDefined) {
-    <div class="hint hint-capture square-@{cell._2 + 1}@{8 - cell._1}"></div>
-  } else {
-    <div class="hint hint-move square-@{cell._2 + 1}@{8 - cell._1}"></div>
-  }
-}
+@(playerColor: PieceColor)
 
 @*********************************************************
  * Helper functions for rendering the board coordinates. *
@@ -78,14 +43,7 @@
 
 @*******************************************@
 
-@postForm(content: Html) = {
-  <form method="post">
-    @CSRF.formField
-    @content
-  </form>
-}
-
-@nav("HTWG Chess", stylesheets = List("game"), scripts = List("game")) {
+@nav("HTWG Chess", stylesheets = List("game"), scripts = List("cookieHandler", "game")) {
   <audio id="move-sound" src="@routes.Assets.versioned("sounds/move.mp3")"></audio>
   <audio id="capture-sound" src="@routes.Assets.versioned("sounds/capture.mp3")"></audio>
   <audio id="check-sound" src="@routes.Assets.versioned("sounds/check.mp3")"></audio>
@@ -107,34 +65,6 @@
   </div>
   <div class="game-container" id="game">
     <div class="chess-layout">
-      <div class="chess-controls" id="info-ctrl">
-        <div class="chess-info">
-          <h5>Game Info</h5>
-          <small>
-            Current Player: <span id="state-color-display">@state.color</span><br>
-            Half-Moves: <span id="state-half-moves-display">@state.halfMoves</span><br>
-            Full-Moves: <span id="state-full-moves-display">@state.fullMoves</span>
-          </small>
-        </div>
-        <form class="btn-bar" id="ctrl-buttons-vertical" method="post">
-          @CSRF.formField
-          <div class="btn-group-vertical" role="group">
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.undo">Undo</button>
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.redo">Redo</button>
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.reset">Reset</button>
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.clear">Clear</button>
-          </div>
-        </form>
-        <form class="btn-bar" id="ctrl-buttons-horizontal" method="post">
-          @CSRF.formField
-          <div class="btn-group" role="group">
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.undo">Undo</button>
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.redo">Redo</button>
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.reset">Reset</button>
-            <button class="btn btn-outline-secondary" type="submit" formaction="@routes.ChessController.clear">Clear</button>
-          </div>
-        </form>
-      </div>
       <div class="board-container">
         @if(playerColor == PieceColor.White) {
           <chessboard id="chessboard" class="board visually-hidden">
@@ -152,50 +82,7 @@
           <div class="highlight visually-hidden" id="move-highlight-from"></div>
           <div class="highlight visually-hidden" id="move-highlight-to"></div>
           <div class="check visually-hidden" id="check-highlight"></div>
-          @*@for(col <- 0 until 8) {
-            @for(row <- 0 until 8) {
-              @if(maybePiece(row, col).isDefined) {
-                @pieceDiv(row, col, piece(row, col))
-              }
-            }
-          }
-          @for(hint <- legalMoves) {
-            @hintDiv(hint)
-          }*@
         </chessboard>
-      </div>
-      <div class="chess-controls mx-1 visually-hidden" id="play-ctrl">
-        @helper.form(action = routes.ChessController.putWithFen, Symbol("id") -> "fen-form") {
-          @CSRF.formField
-          <div class="form-group form-floating">
-            <input class="form-control" id="fen" type="text" name="fen" value="" placeholder="FEN">
-            <label for="fen">FEN</label>
-          </div>
-          <button class="btn btn-primary m-2" type="submit">Load</button>
-        }
-
-        @helper.form(action = routes.ChessController.move, Symbol("id") -> "move-form") {
-          @CSRF.formField
-          <div class="form-group form-floating">
-            <input class="form-control" id="from" type="text" name="from" value="" placeholder="From">
-            <label for="from">From</label>
-          </div>
-          <div class="form-group form-floating">
-            <input class="form-control" id="to" type="text" name="to" value="" placeholder="To">
-            <label for="to">To</label>
-          </div>
-          <button class="btn btn-primary m-2" type="submit">Move</button>
-        }
-
-        @helper.form(action = routes.ChessController.select, Symbol("id") -> "select-form") {
-          @CSRF.formField
-          <div class="form-group form-floating">
-            <input class="form-control" id="tile" type="text" name="tile" value="" placeholder="Tile">
-            <label for="tile">Tile</label>
-          </div>
-          <button class="btn btn-primary m-2" type="submit">Select</button>
-        }
-        </div>
       </div>
     </div>
   </div>

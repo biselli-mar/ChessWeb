@@ -7,7 +7,7 @@ GET     /                           controllers.ChessController.index()
 
 GET     /play                       controllers.ChessController.game
 
-GET     /play/socket/:sessionId     controllers.SessionController.socket(sessionId: String)
+GET     /play/socket                controllers.SessionController.socket(sessionId: String)
 
 GET     /about                      controllers.ChessController.about()
 

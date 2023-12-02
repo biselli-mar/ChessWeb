@@ -77,6 +77,7 @@ with play.api.i18n.I18nSupport {
 
     def createSession = Action.async(parse.form(createSessionForm)) { implicit request: Request[CreateSessionForm] =>
         val formData: CreateSessionForm = request.body
+        println(s"Creating pending session: " + formData)
         // create new session
         ws.url(controllerURL + "/session")
           .withQueryStringParameters("play-white" -> formData.playAsWhite.toString)
@@ -91,7 +92,7 @@ with play.api.i18n.I18nSupport {
                     } else {
                         pendingSessions += (sessionId -> PieceColor.Black)
                     }
-                    Created(response.body)
+                    Created(responseJson)
                 }   
                 case _ => InternalServerError(response.body)
             }
@@ -100,13 +101,14 @@ with play.api.i18n.I18nSupport {
 
     def joinSession = Action.async(parse.form(joinSessionForm)) { implicit request: Request[JoinSessionForm] =>
         val sessionId: String = request.body.sessionId
+        println(s"#${sessionId} - Joining session")
         // join session
         ws.url(controllerURL + "/session/join")
           .withQueryStringParameters("session" -> sessionId)
           .post("")
           .map { response =>
             response.status match {
-                case 200 => Ok(response.body)
+                case 200 => Ok(Json.parse(response.body))
                 case _ => InternalServerError(response.body)
             }
         }
@@ -125,15 +127,22 @@ with play.api.i18n.I18nSupport {
         }
     }
 
-    def socket(sessionId: String) = WebSocket.acceptOrResult[JsValue, JsValue] { request =>
+    def socket(sessionId: String) = WebSocket.acceptOrResult[String, String] { request =>
         Future.successful(
             if (pendingSessions.contains(sessionId)) {
+                println(s"#${sessionId} - Opening socket; new game")
                 Right(ActorFlow.actorRef(SessionActor.props(_ , sessionId, pendingSessions(sessionId))))
             }
             else {
                 openSessions(sessionId).actorRefs match {
-                    case Left(_) => Right(ActorFlow.actorRef(SessionActor.props(_ , sessionId, openSessions(sessionId).guestColor)))
-                    case Right(_) => Left(Forbidden)
+                    case Left(_) => {
+                        println(s"#${sessionId} - Opening socket; joining game")
+                        Right(ActorFlow.actorRef(SessionActor.props(_ , sessionId, openSessions(sessionId).guestColor)))
+                    }
+                    case Right(_) => {
+                        println(s"#${sessionId} - Deny socket; game is already full")
+                        Left(Forbidden)
+                    }
             }
         })
         
@@ -141,6 +150,7 @@ with play.api.i18n.I18nSupport {
 
     class SessionActor(client: ActorRef, sessionId: String, color: PieceColor) extends Actor {
         if (openSessions.contains(sessionId)) { // joining existing session
+            println(s"#${sessionId} - Joining existing session")
             val sessionData = openSessions(sessionId)
             val hostActorRef = sessionData.actorRefs match {
                 case Left(actorRef) => actorRef
@@ -148,48 +158,60 @@ with play.api.i18n.I18nSupport {
             }
             openSessions += (sessionId -> SessionData(sessionId, sessionData.hostIsWhite, Right((hostActorRef, client))))
             gameJsonData(sessionId).recover {
-                case e: Exception => Json.obj("error" -> e.getMessage)
+                case e: Exception => 
+                    val errorObj = Json.obj("error" -> e.getMessage)
+                    println(s"#${sessionId} - Encountered error: " + errorObj)
+                    hostActorRef ! errorObj.toString()
+                    client ! errorObj.toString()
             }.collect({
                 case json: JsObject => {
-                    hostActorRef ! json.toString
-                    client ! json.toString
+                    println("Starting game: " + sessionId)
+                    val responseJson = json + ("player-color" -> JsString(color.toFenChar)) 
+                    hostActorRef ! responseJson.toString()
+                    client ! responseJson.toString()
                 }
             })
         } else {                                // creating new session
+            println(s"#${sessionId} - Creating new session")
             val pendingSession = pendingSessions(sessionId)
             openSessions += (sessionId -> SessionData(sessionId, (pendingSession == PieceColor.White), Left(client)))
             pendingSessions -= sessionId
-            client ! JsString("Wait for opponent")
+            client ! "Wait for opponent"
         }
 
         override def postStop() = {
+            println(s"#${sessionId} - Actor terminated")
             ws.url(controllerURL + "/session")
               .withQueryStringParameters("session" -> sessionId)
               .delete()
         }
 
         def receive = {
-            case msg: JsValue => {
+            case msg: String => {
                 if(msg.toString().equals("Keep alive")) {
-                    client ! JsString("Keep alive")
+                    client ! "Keep alive"
                 } else {
+                    println(s"#${sessionId} - Received msg: " + msg.toString())
                     val eitherActorRefs: Either[ActorRef, Tuple2[ActorRef, ActorRef]] = openSessions(sessionId).actorRefs
-
+                    val jsonContent = Json.parse(msg)
                     eitherActorRefs match {
                         case Left(actorRef) =>
-                            if ((msg \ "endSession").isDefined) {
+                            if ((jsonContent \ "endSession").isDefined) {
+                                println(s"#${sessionId} - Cancelling session")
                                 openSessions -= sessionId
                                 actorRef ! PoisonPill
                             } else {
-                                actorRef ! Json.obj("error" -> "Waiting for second player")
+                                println("Impatient player")
+                                actorRef ! Json.obj("error" -> "Waiting for second player").toString()
                             }
-                            client ! Json.obj("error" -> "Waiting for second player")
                         case Right(actorRefs) => {
-                            handleIncomingSocketMessage(sessionId, msg, color, actorRefs)
+                            handleIncomingSocketMessage(sessionId, jsonContent, color, actorRefs)
                         }
                     }
                 }
             }
+            case _ =>
+                println("Invalid message")
         }
     }
 
@@ -198,34 +220,46 @@ with play.api.i18n.I18nSupport {
 
         tryMoveData match {
             case Success(moveData) => {
+                println("Moving piece: " + moveData.from + " to " + moveData.to)
                 move(moveData, sessionId).map { response =>
                     response.status match {
                         case 200 => {
                             gameJsonData(sessionId).recover {
-                                case e: Exception => Json.obj("error" -> e.getMessage)
+                                case e: Exception => 
+                                    val errorObj = Json.obj("error" -> e.getMessage)
+                                    println(s"#${sessionId} - Encountered error: " + errorObj)
+                                    actorRefs._1 ! errorObj.toString()
+                                    actorRefs._2 ! errorObj.toString()
                             }.collect({
                                 case json: JsObject => {
                                     val sendJson = json + ("move" -> Json.obj(
                                         "from" -> moveData.from,
                                         "to" -> moveData.to
                                     )) + ("player-color" -> JsString(color.toFenChar))
-                                    actorRefs._1 ! sendJson
-                                    actorRefs._2 ! sendJson
+                                    println(s"#${sessionId} - Processing move: " + sendJson)
+                                    actorRefs._1 ! sendJson.toString()
+                                    actorRefs._2 ! sendJson.toString()
                                 }
                             })
                         }
-                        case _ => Json.obj("error" -> response.body)
+                        case _ =>
+                            println(s"#${sessionId} - Encountered error: " + response.body)
+                            val errorObj = Json.obj("error" -> response.body)
+                            actorRefs._1 ! errorObj.toString()
+                            actorRefs._2 ! errorObj.toString()
                     }
                 }
             }
-            case Failure(_) => {
+            case Failure(e) => {
                 if ((msg \ "endSession").isDefined) {
+                    println(s"#${sessionId} - Ending session")
                     openSessions -= sessionId
                     actorRefs._1 ! PoisonPill
                     actorRefs._2 ! PoisonPill
                 } else {
-                    actorRefs._1 ! Json.obj("error" -> "Invalid message")
-                    actorRefs._2 ! Json.obj("error" -> "Invalid message")
+                    println("Invalid message; error: " + e.toString())
+                    actorRefs._1 ! Json.obj("error" -> "Invalid message").toString()
+                    actorRefs._2 ! Json.obj("error" -> "Invalid message").toString()
                 }
             }
         }

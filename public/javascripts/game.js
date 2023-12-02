@@ -39,20 +39,34 @@ let animateState = false;       // whether or not to animate moves
 let waitingTurn = true;        // whether or not we are waiting for opponent's turn
 
 //=============== Websocket ==================
-
-let socket = new WebSocket("ws://localhost:9000/play/socket/" + getCookie('chess-session-id'));
+console.log("Session cookie:" + getCookie('CHESS_SESSION_ID'));
+const socketUrl = "ws://localhost:9000/play/socket?sessionId=" + getCookie('CHESS_SESSION_ID');
+console.log(socketUrl);
+let socket = new WebSocket(socketUrl);
+socket.onopen = function() {
+    console.log("Socket to server opened");
+}
 socket.onmessage = function(event) {
+    console.log("Socket received data: " + event.data)
     if (event.data === 'Wait for opponent') {
-        setInterval(() => socket.send("Keep alive"), 20000);
+        console.log("Waiting for opponent; start keep alive");
+        socket.send('Keep alive');
+        setInterval(() => socket.send('Keep alive'), 20000);
     } else if (event.data === 'Keep alive') {
-        return;
+        console.log("Keep alive");
     } else {
         const data = JSON.parse(event.data);
-        if (data["error"] !== undefined) {
+        console.log("Received different data:" + data);
+        if (data["error"] === undefined) {
             if (data["move"] !== undefined) {
+                console.log("Received move data: " + data);
                 processMove(data);
             } else {
+                console.log("Initializing board: " + data);
                 position = data;
+                console.log(data["pieces"]);
+                console.log(data["legal-moves"]);
+                console.log(data["player-color"]);
                 fillBoard(data["pieces"], data["player-color"]);
                 if (data["player-color"] === data["state"]["color"]) {
                     waitingTurn = false;
@@ -64,9 +78,17 @@ socket.onmessage = function(event) {
             }
 
         } else {
+            console.error("Socket sent error: " + data["error"]);
             alert(data["error"]);
         }
     }
+}
+socket.onerror = function(event) {
+    console.error("Socket sent error");
+    console.error(event.data);
+}
+socket.onclose = function() {
+    console.log("Closing socket");
 }
 
 //=============== Helper Functions ==================
@@ -101,11 +123,6 @@ function removeSquareClass(div) {
 }
 
 //=============== Event Listeners ==================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Add pieces to board
-    setPosition();
-});
 
 function pieceMousedownHandler(event) {
     if (waitingTurn) return;
@@ -151,7 +168,7 @@ function addHintEventListeners(hint, srcTile, destTile) {
         socket.send(JSON.stringify({
             from: srcTile,
             to: destTile,
-            playerId: getCookie('chess-player-id')
+            playerId: getCookie('CHESS_PLAYER_ID')
         }));
     });
 
@@ -219,6 +236,8 @@ function fillBoard(position, playerColor) {
 
         });
     });
+
+    chessBoard.removeClass('visually-hidden');
 }
 
 function processMove(gameData) {

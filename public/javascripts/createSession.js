@@ -30,8 +30,11 @@ function createSession(asWhite) {
         data: formData,
         success: function(data) {
             console.log(data);
-            setCookie("chess-session-id", data["session"]);
-            setCookie("chess-player-id", data["player"]);
+            console.log(data.session);
+            console.log("val CHESS_SESSION_ID=" + data.session);
+            document.cookie = "CHESS_SESSION_ID=" + data.session + "; path=/";
+            document.cookie = "CHESS_PLAYER_ID=" + data.player + "; path=/";
+            console.log("Session cookie:" + getCookie('CHESS_SESSION_ID'));
             window.location.href = "/play";
         },
         error: function(jqXHR, textStatus, errorThrown) {

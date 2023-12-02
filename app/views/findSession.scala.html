@@ -8,10 +8,8 @@
 @nav("New Game", scripts = List("cookieHandler", "joinSession")) {
     <form id="join-session-form">
       @CSRF.formField
-      <div class="form-group form-floating">
-        <input class="form-control" id="sessionId" type="text" name="sessionId" value="" placeholder="Game-Code">
-        <label for="sessionId">Game-Code</label>
-      </div>
+      <input class="form-control" id="sessionId" type="text" name="sessionId" value="" placeholder="Game-Code">
+      <label for="sessionId">Game-Code</label>
     </form>
     <button class="btn btn-primary m-2" id="join-session-btn">Join</button>
 }
