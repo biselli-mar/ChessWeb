@@ -43,6 +43,8 @@ let waitingTurn = true;        // whether or not we are waiting for opponent's t
 console.log("Session cookie:" + getCookie('CHESS_SESSION_ID'));
 const socketUrl = "ws://localhost:9000/play/socket?sessionId=" + getCookie('CHESS_SESSION_ID');
 console.log(socketUrl);
+const sessionIdDisplay = $('#sessionIdDisplay');
+sessionIdDisplay.text("Session ID: " + getCookie('CHESS_SESSION_ID'));
 let socket = new WebSocket(socketUrl);
 socket.onopen = function() {
     console.log("Socket to server opened");

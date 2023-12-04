@@ -161,7 +161,6 @@ with play.api.i18n.I18nSupport {
                 case e: Exception => 
                     val errorObj = Json.obj("error" -> e.getMessage)
                     println(s"#${sessionId} - Encountered error: " + errorObj)
-                    hostActorRef ! errorObj.toString()
                     client ! errorObj.toString()
             }.collect({
                 case json: JsObject => {

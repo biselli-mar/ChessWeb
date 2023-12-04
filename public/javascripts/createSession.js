@@ -31,6 +31,9 @@ function createSession(asWhite) {
         success: function(data) {
             console.log(data);
             console.log(data.session);
+            
+            
+
             console.log("val CHESS_SESSION_ID=" + data.session);
             document.cookie = "CHESS_SESSION_ID=" + data.session + "; path=/";
             document.cookie = "CHESS_PLAYER_ID=" + data.player + "; path=/";
