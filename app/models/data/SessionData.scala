@@ -36,6 +36,15 @@ case class SessionData(
         }
     }
 
+    def hostColor: PieceColor = {
+        if (hostIsWhite) {
+            PieceColor.White
+        } else {
+            PieceColor.Black
+        }
+    
+    }
+
     def guestColor: PieceColor = {
         if (hostIsWhite) {
             PieceColor.Black

@@ -166,9 +166,10 @@ with play.api.i18n.I18nSupport {
             }.collect({
                 case json: JsObject => {
                     println("Starting game: " + sessionId)
-                    val responseJson = json + ("player-color" -> JsString(color.toFenChar)) 
-                    hostActorRef ! responseJson.toString()
-                    client ! responseJson.toString()
+                    val hostResponseJson = json + ("player-color" -> JsString(sessionData.hostColor.toFenChar))
+                    val guestResponseJson = json + ("player-color" -> JsString(sessionData.guestColor.toFenChar))
+                    hostActorRef ! hostResponseJson.toString()
+                    client ! guestResponseJson.toString()
                 }
             })
         } else {                                // creating new session
