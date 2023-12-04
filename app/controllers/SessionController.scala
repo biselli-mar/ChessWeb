@@ -236,7 +236,7 @@ with play.api.i18n.I18nSupport {
                                     val sendJson = json + ("move" -> Json.obj(
                                         "from" -> moveData.from,
                                         "to" -> moveData.to
-                                    )) + ("player-color" -> JsString(color.toFenChar))
+                                    ))
                                     println(s"#${sessionId} - Processing move: " + sendJson)
                                     actorRefs._1 ! sendJson.toString()
                                     actorRefs._2 ! sendJson.toString()

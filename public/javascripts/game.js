@@ -34,6 +34,7 @@ checkSound.volume = 0.1;
 const fileChars = 'ABCDEFGH';   // used to convert file number to letter
 let position = {};              // contains map of tiles to pieces
 let legalMoves = {};            // contains map of tiles to tiles
+let playerColor;                // contains player color
 const animationDuration = 350;  // milliseconds
 let animateState = false;       // whether or not to animate moves
 let waitingTurn = true;        // whether or not we are waiting for opponent's turn
@@ -67,6 +68,7 @@ socket.onmessage = function(event) {
                 console.log(data["pieces"]);
                 console.log(data["legal-moves"]);
                 console.log(data["player-color"]);
+                playerColor = data["player-color"];
                 fillBoard(data["pieces"], data["player-color"]);
                 if (data["player-color"] === data["state"]["color"]) {
                     waitingTurn = false;
@@ -184,7 +186,12 @@ function addHintEventListeners(hint, srcTile, destTile) {
 
     hint.addEventListener('drop', (event) => {
         event.preventDefault();
-        postMove(srcTile, destTile);
+        animateState = false;
+        socket.send(JSON.stringify({
+            from: srcTile,
+            to: destTile,
+            playerId: getCookie('CHESS_PLAYER_ID')
+        }));
     });
 }
 
@@ -297,7 +304,7 @@ function processMove(gameData) {
             $('.square-' + getColRow(tile)).remove('.piece');
         } else if (tile !== to && piece !== undefined) {
             chessBoard.append(pieceDiv(piece, tile));
-        } else if (tile === to && !animate) {
+        } else if (tile === to && !animateState) {
             fromPieceDiv.removeClass('square-' + colRowFrom);
             fromPieceDiv.addClass('square-' + colRowTo);
             fromPieceDiv.attr('id', fromPiece + '-' + colRowTo);
@@ -332,14 +339,17 @@ function processMove(gameData) {
         gameOverModal.modal('toggle');
     }
 
-    
-    playerTurn.text(turnColor == 'w' ? 'White' : 'Black');
-    halfMoves.text(gameData["state"]["halfMoves"]);
-    fullMoves.text(gameData["state"]["fullMoves"]);
-
     position = gameData;
     if (animateState) {
         animateState = false;
+    }
+
+    if (playerColor === turnColor) {
+        legalMoves = gameData["legal-moves"];
+        waitingTurn = false;
+    } else {
+        legalMoves = {};
+        waitingTurn = true;
     }
 
     removeSquareClass(moveHighlightFrom);
