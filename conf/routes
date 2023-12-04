@@ -7,46 +7,21 @@ GET     /                           controllers.ChessController.index()
 
 GET     /play                       controllers.ChessController.game
 
-GET     /play/socket                controllers.SessionController.socket(sessionId: String)
+GET     /profile                    controllers.ChessController.notFinished()
 
 GET     /about                      controllers.ChessController.about()
 
-GET     /profile                    controllers.ChessController.notFinished()
+GET     /play/socket                controllers.SessionController.socket(sessionId: String)
 
+GET     /session                    controllers.SessionController.newSessions
 
-# Executing commands
+POST    /session                    controllers.SessionController.createSession
 
-GET      /api/moves                  controllers.ChessController.getLegalMoves
+GET     /session/join               controllers.SessionController.findSession
 
-GET      /api/position               controllers.ChessController.getPosition
+POST    /session/join               controllers.SessionController.joinSession
 
-GET      /session                    controllers.SessionController.newSessions
-
-POST     /session                    controllers.SessionController.createSession
-
-GET      /session/join               controllers.SessionController.findSession
-
-POST     /session/join               controllers.SessionController.joinSession
-
-DELETE   /session                    controllers.SessionController.deleteSession(sessionId: String)
-
-POST     /play/move                  controllers.ChessController.move
-
-POST     /play/select                controllers.ChessController.select
-
-POST     /play/clear                 controllers.ChessController.clear
-
-POST     /play/putWithFen            controllers.ChessController.putWithFen
-
-POST     /play/reset                 controllers.ChessController.reset
-
-POST     /play/start                 controllers.ChessController.start
-
-POST     /play/stop                  controllers.ChessController.stop
-
-POST     /play/undo                  controllers.ChessController.undo
-
-POST     /play/redo                  controllers.ChessController.redo
+DELETE  /session                    controllers.SessionController.deleteSession(sessionId: String)
 
 
 # Error Handling

@@ -71,11 +71,7 @@
         } else {
           <chessboard id="chessboard" class="board visually-hidden flipped">
         }
-          <svg class="coordinates" viewBox="0 0 100 100">
-            @for(num <- 0 until 8) {
-              @fileSvg(num * 12.5 + 10.8, 99, intToFileChar(num), fileBrightnessStr(num))
-              @rankSvg(0.75, num * 12.5 + 3.5, intToRank(num), fileBrightnessStr(num + 1))
-            }
+          <svg class="coordinates" viewBox="0 0 100 100" id="chess-coordinates">
           </svg>
           <!--Highligh Squares-->
           <div class="highlight visually-hidden" id="select-highlight"></div>
