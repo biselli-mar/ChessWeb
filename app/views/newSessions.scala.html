@@ -5,14 +5,16 @@
 
 @(createSessionForm: Form[CreateSessionForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
-@nav("New Game", scripts = List("cookieHandler", "createSession")) {
-    <form class="visually-hidden" id="join-white-form">
-        @CSRF.formField
-    </form>
-    <button class="chess-button chess-button-big" id="join-white-btn">Play as White</button>
-    <form class="visually-hidden" id="join-black-form">
-        @CSRF.formField
-    </form>
-    <button class="chess-button chess-button-big" id="join-black-btn">Play as Black</button>
+@nav("New Game", stylesheets = List("newSessions"), scripts = List("cookieHandler", "createSession")) {
+    <div class="button-container">
+        <form class="visually-hidden" id="join-white-form">
+            @CSRF.formField
+        </form>
+        <button class="chess-button chess-button-big" id="join-white-btn">Play as White</button>
+        <form class="visually-hidden" id="join-black-form">
+            @CSRF.formField
+        </form>
+        <button class="chess-button chess-button-big" id="join-black-btn">Play as Black</button>
+    </div>
     
 }
