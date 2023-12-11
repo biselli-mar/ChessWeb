@@ -1,5 +1,217 @@
 /* eslint-disable no-undef */
-Vue.component('chess-modals', {
+const app = Vue.createApp({})
+
+app.config.compilerOptions.isCustomElement = tag => tag === 'chessboard'
+
+app.component('nav-container', {
+  data() {
+    return {
+      navItems: [
+        {
+          name: 'About',
+          destUrl: '/about',
+          iconClass: 'bi-info-square'
+        },
+        {
+          name: "Profile",
+          destUrl: "/profile",
+          iconClass: "bi-person-square"
+        }
+      ],
+      lightIcon: 'bi-brightness-high',
+      darkIcon: 'bi-moon-stars',
+      theme: 'light'
+    }
+  },
+  methods: {
+    setStoredTheme(theme) {
+      localStorage.setItem('theme', theme)
+    },
+    getStoredTheme() {
+      return localStorage.getItem('theme')
+    },
+    getPreferredTheme() {
+      const storedTheme = this.getStoredTheme()
+      if (storedTheme) {
+        return storedTheme
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    },
+    setTheme(theme) {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme)
+      }
+    },
+    showActiveTheme(theme) {
+      const themeSwitcher = document.querySelector('#color-mode-switch')
+      const themeIcon = document.querySelector('#color-mode-icon')
+      document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+        element.classList.remove('active')
+        element.setAttribute('aria-pressed', 'false')
+      })
+      if (theme === 'dark') {
+        // Set themeSwitcher checkbox to checked
+        themeSwitcher.checked = true
+        themeIcon.classList.remove(this.lightIcon)
+        themeIcon.classList.add(this.darkIcon)
+      } else {
+        themeSwitcher.checked = false
+        themeIcon.classList.remove(this.darkIcon)
+        themeIcon.classList.add(this.lightIcon)
+      }
+    },
+    toggleTheme() {
+      this.theme = this.theme === 'dark' ? 'light' : 'dark'
+      this.setStoredTheme(this.theme)
+      this.setTheme(this.theme)
+      this.showActiveTheme(this.theme)
+    }
+  },
+  mounted() {
+    this.theme = this.getPreferredTheme()
+    this.setTheme(this.theme)
+    this.showActiveTheme(this.theme)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      const storedTheme = this.getStoredTheme()
+      if (storedTheme !== 'light' && storedTheme !== 'dark') {
+        this.setTheme(this.theme)
+      }
+    })
+
+    window.addEventListener('DOMContentLoaded', () => {
+      this.showActiveTheme(this.theme)
+    })
+    const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+      new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  },
+  template: `
+    <main>
+      <nav class="navbar navbar-expand-sm flex-shrink-0" aria-label="navbar">
+        <div class="container-fluid">
+          <a class="navbar-brand" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home" href="/">
+            <img class="pe-none ms-2 ms-lg-0" src="/assets/images/logo.png">
+            <div class="navbar-brand-icon"></div>
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-pills" aria-controls="nav-pills" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="navbar-collapse collapse me-auto me-lg-0" id="nav-pills">
+            <ul class="navbar-nav me-auto me-lg-0 w-100">
+              <li v-for="item in navItems" class="nav-item ps-3 ps-sm-1 pe-1 ps-lg-2 pe-lg-0">
+                <a class="nav-link border-bottom rounded-0 w-auto" data-bs-toggle="tooltip" data-bs-placement="right" v-bind:aria-label="item.name" v-bind:data-bs-original-title="item.name" :href="item.destUrl">
+                  <i v-bind:class="'fs-4 me-1 bi pe-none ' + item.iconClass" v-bind:aria-label="item.name"></i>
+                  <span class="fs-5 align-text-bottom nav-item-description">{{ item.name }}</span>
+                </a>
+              </li>
+            </ul>
+            <div class="d-flex flex-row" id="color-mode-selector">
+              <i class="bi bi-moon-stars ps-2 pe-1" id="color-mode-icon"></i>
+              <div class="form-check form-switch">
+                <input @click="toggleTheme()" class="form-check-input color-switch" type="checkbox" role="switch" id="color-mode-switch">
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <slot></slot>
+    </main>
+  `
+})
+
+app.component('join-session', {
+  data() {
+    return {}
+  },
+  methods: {
+    joinSession() {
+      const sessionIdForm = $('#join-session-form');
+      const csrfForm = $('#csrf-form');
+      const sessionId = sessionIdForm.children('input[name="sessionId"]').val();
+      console.log("Joining session: " + sessionId)
+      const csrfToken = csrfForm.children('input[name="csrfToken"]').val()
+      const formData = {
+        csrfToken: csrfToken,
+        sessionId: sessionId
+      };
+      $.ajax({
+        type: 'POST',
+        url: '/session/join',
+        data: formData,
+        success: function (data) {
+          console.log(data);
+          console.log(data.session);
+          console.log("val CHESS_SESSION_ID=" + data.session);
+          document.cookie = "CHESS_SESSION_ID=" + data.session + "; path=/";
+          document.cookie = "CHESS_PLAYER_ID=" + data.player + "; path=/";
+          window.location.href = "/play";
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert("Encountered error while trying to join a game\nError code: " + jqXHR + "\n" + errorThrown);
+          return [];
+        }
+      });
+    }
+  },
+  template: `
+    <div class="button-container">
+      <form id="join-session-form">
+        <input class="form-control" id="sessionId" type="text" name="sessionId" value="" placeholder="Game-Code">
+      </form>
+      <button @click="joinSession()" class="btn btn-primary m-2" id="join-session-btn">Join</button>
+    </div>
+  `
+});
+
+app.component('create-session', {
+  data() {
+    return {}
+  },
+  methods: {
+    createSession(asWhite) {
+      const csrfToken = $('#csrf-form').children('input[name="csrfToken"]').val()
+      const formData = {
+        csrfToken: csrfToken,
+        playWhite: asWhite
+      };
+      $.ajax({
+        type: 'POST',
+        url: '/session',
+        data: formData,
+        success: function (data) {
+          console.log(data);
+          console.log(data.session);
+          console.log("val CHESS_SESSION_ID=" + data.session);
+          document.cookie = "CHESS_SESSION_ID=" + data.session + "; path=/";
+          document.cookie = "CHESS_PLAYER_ID=" + data.player + "; path=/";
+          window.location.href = "/play";
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert("Encountered error while trying to create a game\nError code: " + textStatus + "\n" + errorThrown);
+          return [];
+        }
+      });
+    },
+    joinWhite() {
+      this.createSession(true)
+    },
+    joinBlack() {
+      this.createSession(false)
+    }
+  },
+  template: `
+    <div class="button-container">
+      <button @click="joinWhite()" class="chess-button chess-button-big" id="join-white-btn">Play as White</button>
+      <button @click="joinBlack()" class="chess-button chess-button-big" id="join-black-btn">Play as Black</button>
+    </div>
+    `
+});
+
+app.component('chess-modals', {
   template: `
     <div class="modal fade" id="game-over-modal" tabindex="-1" role="dialog" aria-labelledby="game-over-modal-title" aria-hidden="true">
       <div class="modal-dialog modal-sm" role="document">
@@ -20,22 +232,23 @@ Vue.component('chess-modals', {
   `
 });
 
-Vue.component('game-container', {
+app.component('game-container', {
   data() {
     return {
-      chessBoard: $('#chessboard'),
-      selectHighlight: $('#select-highlight'),
-      moveHighlightFrom: $('#move-highlight-from'),
-      moveHighlightTo: $('#move-highlight-to'),
-      checkHighlight: $('#check-highlight'),
-      gameOverModal: $('#game-over-modal'),
-      gameOverModalIcon: $('#game-over-modal-icon'),
-      gameOverModalText: $('#game-over-modal-text'),
-      gameOverModalTitle: $('#game-over-modal-title'),
-      gameOverModalButton: $('#game-over-modal-button'),
-      moveSound: $('#move-sound')[0],
-      captureSound: $('#capture-sound')[0],
-      checkSound: $('#check-sound')[0],
+      chessBoard: undefined,
+      selectHighlight: undefined,
+      moveHighlightFrom: undefined,
+      moveHighlightTo: undefined,
+      checkHighlight: undefined,
+      gameOverModal: undefined,
+      gameOverModalIcon: undefined,
+      gameOverModalText: undefined,
+      gameOverModalTitle: undefined,
+      gameOverModalButton: undefined,
+      moveSound: undefined,
+      captureSound: undefined,
+      checkSound: undefined,
+      sessionIdDisplay: undefined,
       fileChars: 'ABCDEFGH',
       position: {},
       legalMoves: {},
@@ -43,7 +256,7 @@ Vue.component('game-container', {
       animateState: false,
       waitingTurn: true,
       socket: undefined,
-      socketUrl: "ws://localhost:9000/play/socket?sessionId=" + this.getCookie('CHESS_SESSION_ID'),
+      socketUrl: "",
       varPlayerColor: this.playerColor
     }
   },
@@ -60,7 +273,7 @@ Vue.component('game-container', {
       if (parts.length === 2) return parts.pop().split(';').shift();
     },
     getColRow(tile) {
-      return '' + (fileChars.indexOf(tile[0]) + 1) + tile[1];
+      return '' + (this.fileChars.indexOf(tile[0]) + 1) + tile[1];
     },
     getTileTransformValues(tile, pieceWidth) {
       const colRow = this.getColRow(tile);
@@ -167,6 +380,7 @@ Vue.component('game-container', {
       return hint;
     },
     pieceDiv(piece, tile) {
+      console.log("pieceDiv: " + piece + " " + tile);
       const pieceDiv = document.createElement('div');
       tile = this.getColRow(tile);
       pieceDiv.classList.add('piece');
@@ -176,21 +390,21 @@ Vue.component('game-container', {
       pieceDiv.draggable = true;
       return pieceDiv;
     },
-    fillBoard() {
-      if (this.varPlayerColor === 'b') {
+    fillBoard(pieces, playerColor) {
+      if (playerColor === 'b') {
         this.chessBoard.addClass('flipped');
       }
-      for (const [tile, piece] of Object.entries(this.position)) {
-        this.chessBoard.append(pieceDiv(piece, tile));
+      for (const [tile, piece] of Object.entries(pieces)) {
+        this.chessBoard.append(this.pieceDiv(piece, tile));
       }
   
-      this.createCoordinateSvg(this.varPlayerColor === 'w');
+      this.createCoordinateSvg(playerColor === 'w');
   
-      const pieces = $('.piece');
+      const pieceDivs = $('.piece');
   
-      pieces.on('mousedown', this.pieceMousedownHandler);
+      pieceDivs.on('mousedown', this.pieceMousedownHandler);
   
-      pieces.each((index, piece) => {
+      pieceDivs.each((index, piece) => {
           piece.addEventListener('dragstart', this.pieceDragstartHandler);
           piece.addEventListener('dragend', () => {
               piece.classList.remove('visually-hidden');
@@ -243,11 +457,11 @@ Vue.component('game-container', {
     getPositionDiff(pieces) {
       const diff = {};
       for (const [tile, piece] of Object.entries(pieces)) {
-          if (position["pieces"][tile] !== piece) {
+          if (this.position["pieces"][tile] !== piece) {
               diff[tile] = piece;
           }
       }
-      for (const [tile, piece] of Object.entries(position["pieces"])) {
+      for (const [tile, piece] of Object.entries(this.position["pieces"])) {
           if (pieces[tile] !== piece) {
               diff[tile] = pieces[tile];
           }
@@ -263,7 +477,7 @@ Vue.component('game-container', {
       const colRowTo = this.getColRow(to);
       let fromPiece = this.position["pieces"][from];
       this.selectHighlight.addClass('visually-hidden');
-      this.removeSquareClass(selectHighlight);
+      this.removeSquareClass(this.selectHighlight);
       let fromPieceDiv = $('#' + fromPiece + '-' + colRowFrom);
       
       if (this.position["pieces"][from] !== gameData["pieces"][to]) { // promotion
@@ -367,8 +581,25 @@ Vue.component('game-container', {
       this.moveHighlightTo.addClass('square-' + colRowTo);
     }
   },
-  created() {
-    this.socket = new WebSocket(socketUrl);
+  mounted() {
+    this.chessBoard = $('#chessboard');
+    this.selectHighlight = $('#select-highlight');
+    this.moveHighlightFrom = $('#move-highlight-from');
+    this.moveHighlightTo = $('#move-highlight-to');
+    this.checkHighlight = $('#check-highlight');
+    this.gameOverModal = $('#game-over-modal');
+    this.gameOverModalIcon = $('#game-over-modal-icon');
+    this.gameOverModalText = $('#game-over-modal-text');
+    this.gameOverModalTitle = $('#game-over-modal-title');
+    this.gameOverModalButton = $('#game-over-modal-button');
+    this.moveSound = $('#move-sound')[0];
+    this.captureSound = $('#capture-sound')[0];
+    this.checkSound = $('#check-sound')[0];
+    this.sessionIdDisplay = $('#sessionIdDisplay');
+
+    this.socketUrl = "ws://localhost:9000/play/socket?sessionId=" + this.getCookie('CHESS_SESSION_ID');
+    this.socket = new WebSocket(this.socketUrl);
+    let _this = this;
     this.socket.onopen = function() {
         console.log("Socket to server opened");
     }
@@ -376,8 +607,8 @@ Vue.component('game-container', {
         console.log("Socket received data: " + event.data)
         if (event.data === 'Wait for opponent') {
             console.log("Waiting for opponent; start keep alive");
-            this.socket.send('Keep alive');
-            setInterval(() => this.socket.send('Keep alive'), 20000);
+            _this.socket.send('Keep alive');
+            setInterval(() => _this.socket.send('Keep alive'), 20000);
         } else if (event.data === 'Keep alive') {
             console.log("Keep alive");
         } else {
@@ -386,21 +617,22 @@ Vue.component('game-container', {
             if (data["error"] === undefined) {
                 if (data["move"] !== undefined) {
                     console.log("Received move data: " + data);
-                    processMove(data);
+                    _this.processMove(data);
                 } else {
                     console.log("Initializing board: " + data);
-                    this.position = data;
+                    _this.sessionIdDisplay.addClass('visually-hidden');
+                    _this.position = data;
                     console.log(data["pieces"]);
                     console.log(data["legal-moves"]);
                     console.log(data["player-color"]);
-                    this.varPlayerColor = data["player-color"];
-                    fillBoard(data["pieces"], data["player-color"]);
+                    _this.varPlayerColor = data["player-color"];
+                    _this.fillBoard(data["pieces"], data["player-color"]);
                     if (data["player-color"] === data["state"]["color"]) {
-                        waitingTurn = false;
-                        legalMoves = data["legal-moves"];
+                      _this.waitingTurn = false;
+                      _this.legalMoves = data["legal-moves"];
                     } else {
-                        waitingTurn = true;
-                        legalMoves = {};
+                      _this.waitingTurn = true;
+                      _this.legalMoves = {};
                     }
                 }
     
@@ -410,11 +642,11 @@ Vue.component('game-container', {
             }
         }
     }
-    socket.onerror = function(event) {
+    this.socket.onerror = function(event) {
         console.error("Socket sent error");
         console.error(event.data);
     }
-    socket.onclose = function() {
+    this.socket.onclose = function() {
         console.log("Closing socket");
     }
     if (this.varPlayerColor === 'b') {
@@ -423,8 +655,7 @@ Vue.component('game-container', {
     this.moveSound.volume = 0.1;
     this.captureSound.volume = 0.1;
     this.checkSound.volume = 0.1;
-    const sessionIdDisplay = $('#sessionIdDisplay');
-    sessionIdDisplay.text("Session ID: " + getCookie('CHESS_SESSION_ID'));
+    this.sessionIdDisplay.text("Session ID: " + this.getCookie('CHESS_SESSION_ID'));
     this.gameOverModalButton.on('click', () => {
       this.gameOverModal.modal('toggle');
     });
@@ -447,3 +678,5 @@ Vue.component('game-container', {
     </div>
   `
 });
+
+app.mount('#chess-web');

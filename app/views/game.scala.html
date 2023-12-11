@@ -43,45 +43,12 @@
 
 @*******************************************@
 
-@nav("HTWG Chess", stylesheets = List("game"), scripts = List("cookieHandler", "game")) {
+@nav("HTWG Chess", stylesheets = List("game")) {
   <audio id="move-sound" src="@routes.Assets.versioned("sounds/move.mp3")"></audio>
   <audio id="capture-sound" src="@routes.Assets.versioned("sounds/capture.mp3")"></audio>
   <audio id="check-sound" src="@routes.Assets.versioned("sounds/check.mp3")"></audio>
-  <div class="modal fade" id="game-over-modal" tabindex="-1" role="dialog" aria-labelledby="game-over-modal-title" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="game-over-modal-title"></h5>
-          <button id="game-over-modal-button" type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body d-flex flex-row p-0 m-3">
-          <div id="game-over-modal-icon"></div>
-          <span class="ps-3" id="game-over-modal-text"></span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <chess-modals></chess-modals>
   <div id="sessionIdDisplay" class="bootstrap-textbox"></div>
-  <div class="game-container" id="game">
-    <div class="chess-layout">
-      <div class="board-container">
-        @if(playerColor == PieceColor.White) {
-          <chessboard id="chessboard" class="board visually-hidden">
-        } else {
-          <chessboard id="chessboard" class="board visually-hidden flipped">
-        }
-          <svg class="coordinates" viewBox="0 0 100 100" id="chess-coordinates">
-          </svg>
-          <!--Highligh Squares-->
-          <div class="highlight visually-hidden" id="select-highlight"></div>
-          <div class="highlight visually-hidden" id="move-highlight-from"></div>
-          <div class="highlight visually-hidden" id="move-highlight-to"></div>
-          <div class="check visually-hidden" id="check-highlight"></div>
-        </chessboard>
-      </div>
-    </div>
-  </div>
+  <game-container player-color="@playerColor.toFenChar" />
 }
 

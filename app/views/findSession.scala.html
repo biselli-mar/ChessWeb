@@ -5,12 +5,9 @@
 
 @(joinSessionForm: Form[JoinSessionForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
-@nav("New Game", stylesheets = List("findSession"), scripts = List("cookieHandler", "joinSession")) {
-  <div class="button-container">
-    <form id="join-session-form">
-        @CSRF.formField
-        <input class="form-control" id="sessionId" type="text" name="sessionId" value="" placeholder="Game-Code">
-    </form>
-    <button class="btn btn-primary m-2" id="join-session-btn">Join</button>
-  </div>  
+@nav("New Game", stylesheets = List("findSession")) {
+  <form id="csrf-form">
+    @CSRF.formField
+  </form>
+  <join-session></join-session>  
 }
