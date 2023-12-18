@@ -4,23 +4,23 @@
 # ~~~~
 
 GET     /                           controllers.ChessController.index()
-
++nocsrf
 GET     /play                       controllers.ChessController.game
 
 GET     /profile                    controllers.ChessController.notFinished()
 
 GET     /about                      controllers.ChessController.about()
-
++nocsrf
 GET     /play/socket                controllers.SessionController.socket(sessionId: String)
-
++nocsrf
 GET     /session                    controllers.SessionController.newSessions
-
++nocsrf
 POST    /session                    controllers.SessionController.createSession
-
++nocsrf
 GET     /session/join               controllers.SessionController.findSession
-
++nocsrf
 POST    /session/join               controllers.SessionController.joinSession
-
++nocsrf
 DELETE  /session                    controllers.SessionController.deleteSession(sessionId: String)
 
 
