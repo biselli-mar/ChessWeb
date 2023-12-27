@@ -303,4 +303,30 @@ with play.api.i18n.I18nSupport {
           ).put("")
     }
     
+    def playerColor(sessionId: String, playerId: String) = Action.async { implicit request: Request[AnyContent] =>
+        if (pendingSessions.get(sessionId).isDefined) {
+            Future.successful(Ok(Json.obj("color" -> pendingSessions(sessionId).toFenChar)))
+        } else {
+            println(s"#${sessionId} - Getting player color")
+            ws.url(controllerURL + "/session/player-color")
+              .addQueryStringParameters(
+                "session" -> sessionId,
+                "player" -> playerId
+              )
+              .get()
+              .map { response =>
+                response.status match {
+                    case 200 => {
+                        val responseJson = Json.parse(response.body)
+                        println(s"#${sessionId} - Player color: " + responseJson)
+                        Ok(response.body)
+                    }
+                    case _ => {
+                        println(s"#${sessionId} - Encountered error: " + response.status + " " + response.body)
+                        Status(response.status)(response.body)
+                    }
+                }
+            }
+        }
+    }
 }
