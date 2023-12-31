@@ -205,7 +205,7 @@ with play.api.i18n.I18nSupport {
                                 actorRef ! Json.obj("error" -> "Waiting for second player").toString()
                             }
                         case Right(actorRefs) => {
-                            handleIncomingSocketMessage(sessionId, jsonContent, color, actorRefs)
+                            handleIncomingSocketMessage(sessionId, jsonContent, color, client, actorRefs)
                         }
                     }
                 }
@@ -215,7 +215,7 @@ with play.api.i18n.I18nSupport {
         }
     }
 
-    def handleIncomingSocketMessage(sessionId: String, msg: JsValue, color: PieceColor, actorRefs: Tuple2[ActorRef, ActorRef]) = {
+    def handleIncomingSocketMessage(sessionId: String, msg: JsValue, color: PieceColor, initiator: ActorRef, bothActors: Tuple2[ActorRef, ActorRef]) = {
         val tryMoveData = Try(Json.fromJson[MoveData](msg).get)
 
         tryMoveData match {
@@ -228,8 +228,7 @@ with play.api.i18n.I18nSupport {
                                 case e: Exception => 
                                     val errorObj = Json.obj("error" -> e.getMessage)
                                     println(s"#${sessionId} - Encountered error: " + errorObj)
-                                    actorRefs._1 ! errorObj.toString()
-                                    actorRefs._2 ! errorObj.toString()
+                                    initiator ! errorObj.toString()
                             }.collect({
                                 case json: JsObject => {
                                     val sendJson = json + ("move" -> Json.obj(
@@ -237,16 +236,15 @@ with play.api.i18n.I18nSupport {
                                         "to" -> moveData.to
                                     ))
                                     println(s"#${sessionId} - Processing move: " + sendJson)
-                                    actorRefs._1 ! sendJson.toString()
-                                    actorRefs._2 ! sendJson.toString()
+                                    bothActors._1 ! sendJson.toString()
+                                    bothActors._2 ! sendJson.toString()
                                 }
                             })
                         }
                         case _ =>
                             println(s"#${sessionId} - Encountered error: " + response.body)
                             val errorObj = Json.obj("error" -> response.body)
-                            actorRefs._1 ! errorObj.toString()
-                            actorRefs._2 ! errorObj.toString()
+                            initiator ! errorObj.toString()
                     }
                 }
             }
@@ -254,12 +252,11 @@ with play.api.i18n.I18nSupport {
                 if ((msg \ "endSession").isDefined) {
                     println(s"#${sessionId} - Ending session")
                     openSessions -= sessionId
-                    actorRefs._1 ! PoisonPill
-                    actorRefs._2 ! PoisonPill
+                    bothActors._1 ! PoisonPill
+                    bothActors._2 ! PoisonPill
                 } else {
                     println("Invalid message; error: " + e.toString())
-                    actorRefs._1 ! Json.obj("error" -> "Invalid message").toString()
-                    actorRefs._2 ! Json.obj("error" -> "Invalid message").toString()
+                    initiator ! Json.obj("error" -> ("Invalid message: " + msg.toString())).toString()
                 }
             }
         }
