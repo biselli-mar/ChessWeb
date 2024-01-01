@@ -300,12 +300,18 @@ with play.api.i18n.I18nSupport {
           ).put("")
     }
     
-    def playerColor(sessionId: String, playerId: String) = Action.async { implicit request: Request[AnyContent] =>
+    def playerState(sessionId: String, playerId: String) = Action.async { implicit request: Request[AnyContent] =>
         if (pendingSessions.get(sessionId).isDefined) {
-            Future.successful(Ok(Json.obj("color" -> pendingSessions(sessionId).toFenChar)))
+            val fen = FenParser.defaultFen
+            val pieces = FenParser.mapFromFen(fen).map({ case (tile, piece) => (tile.toString, piece.toHtmlString) })
+            Future.successful(
+                Ok(Json.obj(
+                    "color" -> pendingSessions(sessionId).toFenChar,
+                    "pieces" -> Json.toJson(pieces)
+            )))
         } else {
-            println(s"#${sessionId} - Getting player color")
-            ws.url(controllerURL + "/session/player-color")
+            println(s"#${sessionId} - Getting player state")
+            ws.url(controllerURL + "/session/player-state")
               .addQueryStringParameters(
                 "session" -> sessionId,
                 "player" -> playerId
@@ -315,11 +321,17 @@ with play.api.i18n.I18nSupport {
                 response.status match {
                     case 200 => {
                         val responseJson = Json.parse(response.body)
-                        println(s"#${sessionId} - Player color: " + responseJson)
-                        Ok(response.body)
+                        val fen = (responseJson \ "field").as[String]
+                        val pieces = FenParser.mapFromFen(fen).map({ case (tile, piece) => (tile.toString, piece.toHtmlString) })
+                        
+                        Ok(
+                            Json.obj(
+                                "pieces" -> Json.toJson(pieces),
+                                "color" -> (responseJson \ "color").as[String],
+                            )
+                        )
                     }
                     case _ => {
-                        println(s"#${sessionId} - Encountered error: " + response.status + " " + response.body)
                         Status(response.status)(response.body)
                     }
                 }

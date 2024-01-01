@@ -23,7 +23,7 @@ POST    /session/join               controllers.SessionController.joinSession
 +nocsrf
 DELETE  /session                    controllers.SessionController.deleteSession(sessionId: String)
 +nocsrf
-GET     /session/player-color       controllers.SessionController.playerColor(sessionId: String, playerId: String)
+GET     /session/player-state       controllers.SessionController.playerState(sessionId: String, playerId: String)
 
 
 # Error Handling

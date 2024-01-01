@@ -17,6 +17,8 @@ import scala.util.Try
 
 
 object FenParser:
+    val defaultFen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+
     def matrixFromFen(fen: String): Matrix[Option[Piece]] =
       val fieldSize = fen.count(c => c == '/') + 1
       val fenList = fenToList(fen.takeWhile(c => !c.equals(' ')).toCharArray.toList, fieldSize, fieldSize).toVector
