@@ -49,8 +49,8 @@ class SessionController @Inject()(
 extends BaseController
 with play.api.i18n.I18nSupport {
 
-    val controllerURL: String = config.get[String]("de.htwg.se.chess.ControllerUrl")
-    val legalityURL: String = config.get[String]("de.htwg.se.chess.LegalityUrl")
+    val controllerURL: String = sys.env.get("CONTROLLER_URL").getOrElse(config.get[String]("de.htwg.se.chess.ControllerUrl"))
+    val legalityURL: String = sys.env.get("LEGALITY_URL").getOrElse(config.get[String]("de.htwg.se.chess.LegalityUrl"))
 
     val pendingSessions = scala.collection.mutable.Map[String, PieceColor]()
     val openSessions = scala.collection.mutable.Map[String, SessionData]()
@@ -94,7 +94,10 @@ with play.api.i18n.I18nSupport {
                     }
                     Created(responseJson)
                 }   
-                case _ => InternalServerError(response.body)
+                case _ => {
+                    println(s"Encountered error ${response.status}: ${response.body}")
+                    InternalServerError(response.body)
+                }
             }
         }
     }
@@ -109,7 +112,10 @@ with play.api.i18n.I18nSupport {
           .map { response =>
             response.status match {
                 case 200 => Ok(Json.parse(response.body))
-                case _ => InternalServerError(response.body)
+                case _ => {
+                    println(s"Encountered error ${response.status}: ${response.body}")
+                    InternalServerError(response.body)
+                }
             }
         }
     }
@@ -122,7 +128,10 @@ with play.api.i18n.I18nSupport {
           .map { response =>
             response.status match {
                 case 200 => Ok(response.body)
-                case _ => InternalServerError(response.body)
+                case _ => {
+                    println(s"Encountered error ${response.status}: ${response.body}")
+                    InternalServerError(response.body)
+                }
             }
         }
     }
@@ -191,7 +200,6 @@ with play.api.i18n.I18nSupport {
                 if(msg.toString().equals("Keep alive")) {
                     client ! "Keep alive"
                 } else {
-                    println(s"#${sessionId} - Received msg: " + msg.toString())
                     val eitherActorRefs: Either[ActorRef, Tuple2[ActorRef, ActorRef]] = openSessions(sessionId).actorRefs
                     val jsonContent = Json.parse(msg)
                     eitherActorRefs match {
@@ -201,7 +209,6 @@ with play.api.i18n.I18nSupport {
                                 openSessions -= sessionId
                                 actorRef ! PoisonPill
                             } else {
-                                println("Impatient player")
                                 actorRef ! Json.obj("error" -> "Waiting for second player").toString()
                             }
                         case Right(actorRefs) => {
@@ -220,14 +227,12 @@ with play.api.i18n.I18nSupport {
 
         tryMoveData match {
             case Success(moveData) => {
-                println("Moving piece: " + moveData.from + " to " + moveData.to)
                 move(moveData, sessionId).map { response =>
                     response.status match {
                         case 200 => {
                             gameJsonData(sessionId).recover {
                                 case e: Exception => 
                                     val errorObj = Json.obj("error" -> e.getMessage)
-                                    println(s"#${sessionId} - Encountered error: " + errorObj)
                                     initiator ! errorObj.toString()
                             }.collect({
                                 case json: JsObject => {
@@ -235,7 +240,6 @@ with play.api.i18n.I18nSupport {
                                         "from" -> moveData.from,
                                         "to" -> moveData.to
                                     ))
-                                    println(s"#${sessionId} - Processing move: " + sendJson)
                                     bothActors._1 ! sendJson.toString()
                                     bothActors._2 ! sendJson.toString()
                                 }
@@ -310,7 +314,6 @@ with play.api.i18n.I18nSupport {
                     "pieces" -> Json.toJson(pieces)
             )))
         } else {
-            println(s"#${sessionId} - Getting player state")
             ws.url(controllerURL + "/session/player-state")
               .addQueryStringParameters(
                 "session" -> sessionId,
