@@ -24,7 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    val optMessage: Option[String] = message.isBlank() match {
+    val optMessage: Option[String] = message.matches("\\s*") match {
       case true => None
       case false => Some(message)
     }
