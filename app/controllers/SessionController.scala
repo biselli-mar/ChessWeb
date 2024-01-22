@@ -114,7 +114,11 @@ with play.api.i18n.I18nSupport {
                 case 200 => Ok(Json.parse(response.body))
                 case _ => {
                     println(s"Encountered error ${response.status}: ${response.body}")
-                    InternalServerError(response.body)
+                    if (response.body.equals("Invalid session id")) {
+                        BadRequest(response.body)
+                    } else {
+                        InternalServerError(response.body)
+                    }
                 }
             }
         }
