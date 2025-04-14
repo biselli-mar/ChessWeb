@@ -1,0 +1,13 @@
+@import de.htwg.se.chess.util.data._
+@import helper._
+@import models.forms._
+@import models.data._
+
+@(createSessionForm: Form[CreateSessionForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@nav("New Game", stylesheets = List("newSessions")) {
+    <form class="visually-hidden" id="csrf-form">
+        @CSRF.formField
+    </form>
+    <create-session></create-session>
+}

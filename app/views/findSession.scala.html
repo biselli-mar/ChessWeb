@@ -1,0 +1,13 @@
+@import de.htwg.se.chess.util.data._
+@import helper._
+@import models.forms._
+@import models.data._
+
+@(joinSessionForm: Form[JoinSessionForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@nav("New Game", stylesheets = List("findSession")) {
+  <form id="csrf-form">
+    @CSRF.formField
+  </form>
+  <join-session></join-session>  
+}

@@ -50,7 +50,7 @@ class ErrorController @Inject()(ws: WSClient, val controllerComponents: Controll
 
 
     def redirected(statusCode: Int, url: String) = Action { implicit request: Request[AnyContent] =>
-        if (url.isBlank()) { // TODO: Proper url regex
+        if (url.matches("\\s*")) { // TODO: Proper url regex
             InternalServerError(views.html.badRedirect())
         } else {
             if (statusCode >= 300 && statusCode < 400) {

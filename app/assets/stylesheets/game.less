@@ -172,3 +172,54 @@ chessboard {
     align-items: center;
   }
 }
+
+.close {
+  float: right;
+  font-size: x-large;
+  opacity: .5;
+
+  &:hover {
+    text-decoration: none;
+    opacity: 1;
+  }
+
+  &:not(:disabled):not(.disabled) {
+    cursor: pointer;
+  }
+}
+
+button.close {
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.modal-body {
+  align-items: center;
+}
+
+#game-over-modal-icon {
+  height: 45px;
+  width: 45px;
+}
+#sessionIdDisplay {
+  display: flex; /* Use flex container */
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
+  width: 200px;
+  height: 30px;
+  background-color: #f5f5f5;
+  padding: 10px;
+  margin: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+

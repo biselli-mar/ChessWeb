@@ -4,37 +4,26 @@
 # ~~~~
 
 GET     /                           controllers.ChessController.index()
-
++nocsrf
 GET     /play                       controllers.ChessController.game
-
-GET     /about                      controllers.ChessController.about()
 
 GET     /profile                    controllers.ChessController.notFinished()
 
-
-# Executing commands
-
-GET      /api/moves                  controllers.ChessController.getLegalMoves
-
-GET      /api/position               controllers.ChessController.getPosition
-
-POST     /play/move                  controllers.ChessController.move
-
-POST     /play/select                controllers.ChessController.select
-
-POST     /play/clear                 controllers.ChessController.clear
-
-POST     /play/putWithFen            controllers.ChessController.putWithFen
-
-POST     /play/reset                 controllers.ChessController.reset
-
-POST     /play/start                 controllers.ChessController.start
-
-POST     /play/stop                  controllers.ChessController.stop
-
-POST     /play/undo                  controllers.ChessController.undo
-
-POST     /play/redo                  controllers.ChessController.redo
+GET     /about                      controllers.ChessController.about()
++nocsrf
+GET     /play/socket                controllers.SessionController.socket(sessionId: String)
++nocsrf
+GET     /session                    controllers.SessionController.newSessions
++nocsrf
+POST    /session                    controllers.SessionController.createSession
++nocsrf
+GET     /session/join               controllers.SessionController.findSession
++nocsrf
+POST    /session/join               controllers.SessionController.joinSession
++nocsrf
+DELETE  /session                    controllers.SessionController.deleteSession(sessionId: String)
++nocsrf
+GET     /session/player-state       controllers.SessionController.playerState(sessionId: String, playerId: String)
 
 
 # Error Handling
